@@ -897,7 +897,7 @@ async function loadFromSheet() {
   const [clRaw, pRaw, mRaw, fRaw] = await Promise.all([
     sheetFetch('Classifica!A:J'),
     sheetFetch('Risultati!A:H'),
-    sheetFetch('Marcatori!A:C'),
+    sheetFetch('Marcatori!A:D'),
     sheetFetch('Fase Finale!A:F'),
   ]);
   const classifica = parseClassifica(clRaw);
