@@ -283,7 +283,7 @@ nav::-webkit-scrollbar{display:none}
 <div class="section" id="squadre">
   <div class="sec-hdr">
     <div class="sec-title">Squadre</div>
-    <div class="sec-sub">24 nazionali · 6 fasce</div>
+    <div class="sec-sub" id="sq-sub">24 nazionali · 6 fasce</div>
   </div>
   <div class="pills" id="sq-filter"></div>
   <div id="sq-content"><div class="loading">Caricamento...</div></div>
@@ -337,6 +337,12 @@ const FASCIA_COLORS = {
 const FASCIA_NAMES = {
   1:'Elite ⭐⭐',2:'Forti ⭐',3:'Buone',4:'Medie',5:'Outsider',6:'Wildcard'
 };
+
+// Squadre escluse dal torneo
+const EXCLUDED_TEAMS = new Set(['ARABIA SAUDITA']);
+const normalizeTeam = (name='') => String(name).trim().toUpperCase();
+const isExcludedTeam = (name='') => EXCLUDED_TEAMS.has(normalizeTeam(name));
+const hasExcludedTeam = (...teams) => teams.some(t => t && t !== 'TBD' && isExcludedTeam(t));
 
 // ═══════════════════════════════════════════════════════════
 // DATI DEMO — 24 squadre reali, calendario generato
@@ -393,7 +399,7 @@ async function sheetFetch(range) {
 
 function parseClassifica(rows) {
   // Sheet: POS | SQUADRA | F | G | V | N | P | GF | GS | DR
-  return rows.slice(1).filter(r=>r[1]).map(r => {
+  return rows.slice(1).filter(r=>r[1] && !isNaN(+r[0]) && !isExcludedTeam(r[1])).map(r => {
     const v=+r[4]||0, n=+r[5]||0;
     return {
       nome: r[1], fascia: +r[2]||1,
@@ -406,7 +412,7 @@ function parseClassifica(rows) {
 function parsePartite(rows) {
   // Sheet: GG | DATA | CASA | GOL | : | GOL | TRASFERTA | NOTE
   // Separator rows (⚡ GIORNATA...) have only 1 cell, filtered by r[2]
-  return rows.slice(1).filter(r=>r[2]).map(r => ({
+  return rows.slice(1).filter(r=>r[2] && !isNaN(+r[0]) && !hasExcludedTeam(r[2], r[6])).map(r => ({
     giornata:+r[0]||1, data:r[1]||'', casa:r[2]||'',
     gol_casa:r[3], gol_trasf:r[5], trasferta:r[6]||'', note:r[7]||''
   }));
@@ -414,7 +420,7 @@ function parsePartite(rows) {
 
 function parseMarcatori(rows) {
   // Sheet: # | NOME GIOCATORE | NAZIONALE | GOL
-  return rows.slice(1).filter(r=>r[1]).map(r => ({
+  return rows.slice(1).filter(r=>r[1] && !isExcludedTeam(r[2])).map(r => ({
     nome:r[1], squadra:r[2]||'', gol:+r[3]||0
   })).sort((a,b)=>b.gol-a.gol);
 }
@@ -430,7 +436,11 @@ function parseFinale(rows) {
     const comp = (r[5]||'').toLowerCase();
     const m = {s1:r[1]||'TBD',g1:r[2],s2:r[3]||'TBD',g2:r[4]};
     const key = comp.includes('argento') ? 'argento' : comp.includes('bronzo') ? 'bronzo' : 'mondiale';
-    if (fase.includes('campio')) { out[key].campione = r[1]||''; return; }
+    if (fase.includes('campio')) {
+      out[key].campione = isExcludedTeam(r[1]) ? '' : (r[1]||'');
+      return;
+    }
+    if (hasExcludedTeam(m.s1, m.s2)) return;
     if (fase.includes('quart'))  out[key].quarti.push(m);
     else if (fase.includes('semi')) out[key].semi.push(m);
     else if (fase.includes('3°') || fase.includes('terzo')) out[key].terzo = [m];
@@ -792,6 +802,11 @@ function render() {
   renderMarcatori();
   renderSquadre();
   renderFinale();
+
+  const teamsCount = DATA?.squadre?.length || 0;
+  const fasceCount = new Set((DATA?.squadre || []).map(s => s.fascia)).size;
+  document.getElementById('cl-sub').textContent = `${teamsCount} nazionali`;
+  document.getElementById('sq-sub').textContent = `${teamsCount} nazionali · ${fasceCount} fasce`;
 
   const now = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   if (isDemo) {
