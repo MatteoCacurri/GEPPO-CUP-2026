@@ -392,23 +392,30 @@ async function sheetFetch(range) {
 }
 
 function parseClassifica(rows) {
-  return rows.slice(2).filter(r=>r[0]).map(r => ({
-    nome: r[0], fascia: +r[1]||1,
-    g:+r[2]||0, v:+r[3]||0, n:+r[4]||0, p:+r[5]||0,
-    gf:+r[6]||0, gs:+r[7]||0, diff:r[8]||'0', pts:+r[9]||0
-  }));
+  // Sheet: POS | SQUADRA | F | G | V | N | P | GF | GS | DR
+  return rows.slice(1).filter(r=>r[1]).map(r => {
+    const v=+r[4]||0, n=+r[5]||0;
+    return {
+      nome: r[1], fascia: +r[2]||1,
+      g:+r[3]||0, v, n, p:+r[6]||0,
+      gf:+r[7]||0, gs:+r[8]||0, diff:r[9]||'0', pts: v*3 + n
+    };
+  });
 }
 
 function parsePartite(rows) {
-  return rows.slice(2).filter(r=>r[2]).map(r => ({
-    giornata:+r[0]||1, data:r[1]||'', casa:r[2]||'', trasferta:r[3]||'',
-    gol_casa:r[4], gol_trasf:r[5], note:r[6]||''
+  // Sheet: GG | DATA | CASA | GOL | : | GOL | TRASFERTA | NOTE
+  // Separator rows (⚡ GIORNATA...) have only 1 cell, filtered by r[2]
+  return rows.slice(1).filter(r=>r[2]).map(r => ({
+    giornata:+r[0]||1, data:r[1]||'', casa:r[2]||'',
+    gol_casa:r[3], gol_trasf:r[5], trasferta:r[6]||'', note:r[7]||''
   }));
 }
 
 function parseMarcatori(rows) {
-  return rows.slice(2).filter(r=>r[0]).map(r => ({
-    nome:r[0], squadra:r[1]||'', gol:+r[2]||0
+  // Sheet: # | NOME GIOCATORE | NAZIONALE | GOL
+  return rows.slice(1).filter(r=>r[1]).map(r => ({
+    nome:r[1], squadra:r[2]||'', gol:+r[3]||0
   })).sort((a,b)=>b.gol-a.gol);
 }
 
@@ -418,7 +425,7 @@ function parseFinale(rows) {
     argento:{campione:'',quarti:[],semi:[],finale:[]},
     bronzo:{campione:'',quarti:[],semi:[],finale:[]}
   };
-  rows.slice(2).forEach(r => {
+  rows.slice(1).forEach(r => {
     const fase = (r[0]||'').toLowerCase();
     const comp = (r[5]||'').toLowerCase();
     const m = {s1:r[1]||'TBD',g1:r[2],s2:r[3]||'TBD',g2:r[4]};
@@ -480,7 +487,15 @@ const fascia = n => {
 
 function fmtDate(d) {
   try {
-    return new Date(d+'T00:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+    // Handle both DD/MM/YYYY and YYYY-MM-DD formats
+    let date;
+    if (d.includes('/')) {
+      const [day, month, year] = d.split('/');
+      date = new Date(+year, +month-1, +day);
+    } else {
+      date = new Date(d+'T00:00:00');
+    }
+    return date.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
   } catch { return d; }
 }
 
@@ -571,7 +586,11 @@ function renderPartite() {
   }
 
   const grouped = groupBy(matches, m=>m.data);
-  const dates = Object.keys(grouped).sort();
+  const dates = Object.keys(grouped).sort((a,b) => {
+    // Handle both DD/MM/YYYY and YYYY-MM-DD
+    const toISO = s => s.includes('/') ? s.split('/').reverse().join('-') : s;
+    return toISO(a).localeCompare(toISO(b));
+  });
 
   const html = dates.map(d => {
     const ms = grouped[d].map(m => {
