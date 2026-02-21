@@ -373,13 +373,20 @@ nav{
   border:1px solid rgba(42,138,138,.4);
   box-shadow:0 22px 44px rgba(5,15,15,.5);
 }
+.hero-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0;
+}
 .hero-main::before{
   content:'';
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(110deg,rgba(9,25,25,.85),rgba(15,38,38,.35)),
-    url('IMG/poster.jpeg') center/cover no-repeat;
+  background:linear-gradient(110deg,rgba(9,25,25,.65),rgba(15,38,38,.25));
+  z-index:1;
 }
 .hero-main::after{
   content:'';
@@ -666,6 +673,9 @@ nav{
 
 <section class="world-hero">
   <article class="hero-main">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="IMG/clip.mp4" type="video/mp4">
+    </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="hero-kicker">STADIO RIPOLI · ESTATE 2026</div>
@@ -695,7 +705,7 @@ nav{
   <aside class="hero-covers">
     <figure class="cover-card">
       <img src="IMG/premiazione.jpeg" alt="Premiazione Top Scorer">
-      <figcaption>Top Goalscorer GEPPO_CUP_2025</figcaption>
+      <figcaption>CAPOCANNONIERE GEPPO_CUP_2025</figcaption>
     </figure>
     <figure class="cover-card">
       <img src="IMG/atmosfera.jpeg" alt="L'atmosfera della Geppo Cup">
