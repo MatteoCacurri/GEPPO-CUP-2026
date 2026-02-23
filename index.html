@@ -841,18 +841,18 @@ const SB = {
   key: 'sb_publishable_m8ZtSSexAraojBNZha3biA_pQ_eGvR7',
 };
 
-async function sbInsert(table, data) {
+async function sbUpsert(table, data) {
   const res = await fetch(`${SB.url}/rest/v1/${table}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'apikey': SB.key,
       'Authorization': `Bearer ${SB.key}`,
-      'Prefer': 'return=minimal'
+      'Prefer': 'resolution=merge-duplicates,return=minimal'
     },
     body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error('Supabase insert error ' + res.status);
+  if (!res.ok) throw new Error('Supabase upsert error ' + res.status);
 }
 
 async function sbSelect(table, query = '') {
@@ -864,6 +864,26 @@ async function sbSelect(table, query = '') {
 }
 
 let filterMvp = null; // giornata selezionata, null = auto
+
+// ═══════════════════════════════════════════════════════════
+// FINGERPRINT DISPOSITIVO
+// ═══════════════════════════════════════════════════════════
+async function getFingerprint() {
+  const raw = [
+    navigator.language,
+    navigator.platform,
+    screen.width,
+    screen.height,
+    screen.colorDepth,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.hardwareConcurrency || 0,
+    navigator.maxTouchPoints || 0,
+  ].join('|');
+  const encoded = new TextEncoder().encode(raw);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 32);
+}
 
 // ═══════════════════════════════════════════════════════════
 // FLAGS EMOJI PER NAZIONALI
@@ -1110,14 +1130,12 @@ async function renderMvp() {
       .map(p => p.giornata)
   )].sort((a,b) => a-b);
 
-  // Se nessuna partita giocata ancora
   if (giornateGiocate.length === 0) {
     document.getElementById('mvp-sub').textContent = 'Nessuna giornata ancora giocata';
     el.innerHTML = `<div class="mvp-empty">⚽ Le votazioni apriranno dopo la prima giornata!</div>`;
     return;
   }
 
-  // Selezione giornata — default: ultima giocata
   if (filterMvp === null || !giornateGiocate.includes(filterMvp)) {
     filterMvp = giornateGiocate[giornateGiocate.length - 1];
   }
@@ -1130,34 +1148,33 @@ async function renderMvp() {
   pills.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
     filterMvp = +p.dataset.val; renderMvp();
   }));
-
   document.getElementById('mvp-sub').textContent = `Giornata ${filterMvp}`;
 
-  // Lista giocatori da marcatori (tutti, non filtrati per giornata)
-  const giocatori = DATA.marcatori.length > 0
-    ? DATA.marcatori
-    : [];
-
+  const giocatori = DATA.marcatori;
   if (giocatori.length === 0) {
     el.innerHTML = `<div class="mvp-empty">⚽ Nessun marcatore ancora.<br>I giocatori appariranno qui dopo che vengono inseriti nel foglio Marcatori.</div>`;
     return;
   }
 
-  // Controlla se ha già votato per questa giornata
-  const voteKey = `geppo_mvp_g${filterMvp}`;
-  const mioVoto = localStorage.getItem(voteKey);
-
-  // Carica risultati attuali da Supabase
   el.innerHTML = `<div class="loading">Caricamento voti...</div>`;
-  let votiAttuali = [];
+
+  // Genera fingerprint e carica voti in parallelo
+  let fingerprint, votiAttuali;
   try {
-    votiAttuali = await sbSelect('voti_mvp', `giornata=eq.${filterMvp}&select=giocatore`);
+    [fingerprint, votiAttuali] = await Promise.all([
+      getFingerprint(),
+      sbSelect('voti_mvp', `giornata=eq.${filterMvp}&select=giocatore,fingerprint`)
+    ]);
   } catch(e) {
     el.innerHTML = `<div class="mvp-error">❌ Impossibile caricare i voti. Controlla la connessione.</div>`;
     return;
   }
 
-  // Conta voti per giocatore
+  // Voto attuale di questo dispositivo
+  const mioVotoRow = votiAttuali.find(v => v.fingerprint === fingerprint);
+  const mioVoto = mioVotoRow ? mioVotoRow.giocatore : null;
+
+  // Conta voti (escludi il fingerprint dai dati pubblici)
   const conteggioVoti = {};
   votiAttuali.forEach(v => {
     conteggioVoti[v.giocatore] = (conteggioVoti[v.giocatore] || 0) + 1;
@@ -1165,10 +1182,8 @@ async function renderMvp() {
   const totVoti = votiAttuali.length;
   const maxVoti = Math.max(...Object.values(conteggioVoti), 1);
 
-  // Stato selezione locale
-  let selezionato = null;
+  let selezionato = mioVoto ? { nome: mioVoto } : null;
 
-  // Costruisce HTML
   const playersHtml = giocatori.map(g => {
     const isVotato = mioVoto === g.nome;
     return `<button class="mvp-player-btn ${isVotato?'selected':''}" data-nome="${g.nome}" data-squadra="${g.squadra}">
@@ -1181,68 +1196,69 @@ async function renderMvp() {
     </button>`;
   }).join('');
 
-  const votedBadge = mioVoto
-    ? `<div class="mvp-voted-badge">✅ Hai votato: <strong>${mioVoto}</strong> per la giornata ${filterMvp}</div>`
-    : `<button class="mvp-vote-btn" id="mvp-btn" disabled>Seleziona un giocatore</button>`;
+  const btnLabel = mioVoto
+    ? `✏️ Cambia voto (ora: ${mioVoto})`
+    : 'Seleziona un giocatore';
 
   const risultati = Object.entries(conteggioVoti)
     .sort((a,b) => b[1]-a[1])
     .map(([nome, n]) => {
       const pct = Math.round(n/maxVoti*100);
-      const pctLabel = totVoti > 0 ? `${Math.round(n/totVoti*100)}%` : '';
+      const pctLabel = totVoti > 0 ? ` · ${Math.round(n/totVoti*100)}%` : '';
       return `<div class="mvp-res-row">
         <div class="mvp-res-name">${nome}</div>
         <div class="mvp-res-bar-wrap"><div class="mvp-res-bar" style="width:${pct}%"></div></div>
-        <div class="mvp-res-count">${n} ${pctLabel}</div>
+        <div class="mvp-res-count">${n}${pctLabel}</div>
       </div>`;
     }).join('');
 
   el.innerHTML = `
     <div class="mvp-giornata-label">Scegli il migliore in campo — Giornata ${filterMvp}</div>
     <div class="mvp-player-list">${playersHtml}</div>
-    ${votedBadge}
+    <button class="mvp-vote-btn" id="mvp-btn" ${!selezionato?'disabled':''}>${btnLabel}</button>
     <div class="mvp-results">
       <div class="mvp-results-title">📊 Risultati · ${totVoti} vot${totVoti===1?'o':'i'}</div>
       ${risultati || '<div style="color:var(--muted);font-size:.9rem">Ancora nessun voto</div>'}
     </div>
   `;
 
-  // Gestione click giocatori (solo se non ha già votato)
-  if (!mioVoto) {
-    el.querySelectorAll('.mvp-player-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        el.querySelectorAll('.mvp-player-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selezionato = { nome: btn.dataset.nome, squadra: btn.dataset.squadra };
-        const voteBtn = document.getElementById('mvp-btn');
-        if (voteBtn) {
-          voteBtn.textContent = `⭐ Vota ${selezionato.nome}`;
-          voteBtn.disabled = false;
-        }
-      });
+  // Click su giocatore
+  el.querySelectorAll('.mvp-player-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      el.querySelectorAll('.mvp-player-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selezionato = { nome: btn.dataset.nome, squadra: btn.dataset.squadra };
+      const voteBtn = document.getElementById('mvp-btn');
+      if (voteBtn) {
+        voteBtn.textContent = selezionato.nome === mioVoto
+          ? `✏️ Cambia voto (ora: ${mioVoto})`
+          : `⭐ Vota ${selezionato.nome}`;
+        voteBtn.disabled = false;
+      }
     });
+  });
 
-    const voteBtn = document.getElementById('mvp-btn');
-    if (voteBtn) {
-      voteBtn.addEventListener('click', async () => {
-        if (!selezionato) return;
-        voteBtn.disabled = true;
-        voteBtn.textContent = 'Invio in corso...';
-        try {
-          await sbInsert('voti_mvp', {
-            giornata: filterMvp,
-            giocatore: selezionato.nome,
-            squadra: selezionato.squadra
-          });
-          localStorage.setItem(voteKey, selezionato.nome);
-          renderMvp(); // ricarica con badge votato + risultati aggiornati
-        } catch(e) {
-          voteBtn.disabled = false;
-          voteBtn.textContent = '❌ Errore, riprova';
-          setTimeout(() => { voteBtn.textContent = `⭐ Vota ${selezionato.nome}`; voteBtn.disabled = false; }, 2000);
-        }
-      });
-    }
+  // Click sul bottone vota/cambia
+  const voteBtn = document.getElementById('mvp-btn');
+  if (voteBtn) {
+    voteBtn.addEventListener('click', async () => {
+      if (!selezionato) return;
+      voteBtn.disabled = true;
+      voteBtn.textContent = 'Invio in corso...';
+      try {
+        await sbUpsert('voti_mvp', {
+          giornata: filterMvp,
+          giocatore: selezionato.nome,
+          squadra: selezionato.squadra,
+          fingerprint
+        });
+        renderMvp();
+      } catch(e) {
+        voteBtn.disabled = false;
+        voteBtn.textContent = '❌ Errore, riprova';
+        setTimeout(() => renderMvp(), 2000);
+      }
+    });
   }
 }
 
