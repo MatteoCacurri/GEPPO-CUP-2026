@@ -841,8 +841,8 @@ const SB = {
   key: 'sb_publishable_m8ZtSSexAraojBNZha3biA_pQ_eGvR7',
 };
 
-async function sbUpsert(table, data) {
-  const res = await fetch(`${SB.url}/rest/v1/${table}`, {
+async function sbUpsert(table, data, onConflict) {
+  const res = await fetch(`${SB.url}/rest/v1/${table}?on_conflict=${onConflict}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1251,7 +1251,7 @@ async function renderMvp() {
           giocatore: selezionato.nome,
           squadra: selezionato.squadra,
           fingerprint
-        });
+        }, 'giornata,fingerprint');
         renderMvp();
       } catch(e) {
         voteBtn.disabled = false;
