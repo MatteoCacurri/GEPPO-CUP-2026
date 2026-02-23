@@ -2,7 +2,7 @@
 // GEPPO WORLD CUP 2026 — Service Worker
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'geppo-cup-v1';
+const CACHE_NAME = 'geppo-cup-v2';
 
 // File da cachare subito all'installazione (app shell)
 const STATIC_ASSETS = [
