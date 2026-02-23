@@ -2,11 +2,10 @@
 // GEPPO WORLD CUP 2026 — Service Worker
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'geppo-cup-v2';
+const CACHE_NAME = 'geppo-cup-v3';
 
-// File da cachare subito all'installazione (app shell)
+// Asset statici da cachare (NO index.html — sempre aggiornato dalla rete)
 const STATIC_ASSETS = [
-  './index.html',
   './manifest.json',
   './IMG/logo-geppocup.png',
   './IMG/poster.jpeg',
@@ -15,46 +14,49 @@ const STATIC_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=Poppins:wght@400;500;600;700;800&family=Teko:wght@500;600;700&display=swap'
 ];
 
-// ── INSTALL: scarica e salva l'app shell ─────────────────
+// ── INSTALL ──────────────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
-  // Attiva subito senza aspettare che le vecchie tab vengano chiuse
   self.skipWaiting();
 });
 
-// ── ACTIVATE: rimuovi cache vecchie ─────────────────────
+// ── ACTIVATE: rimuovi cache vecchie ──────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-// ── FETCH: strategia per tipo di richiesta ───────────────
+// ── FETCH ────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Google Sheets API → sempre rete (dati live), no cache
-  if (url.hostname === 'sheets.googleapis.com') {
+  // index.html → sempre dalla rete, fallback cache se offline
+  if (event.request.destination === 'document') {
     event.respondWith(
-      fetch(event.request).catch(() =>
-        new Response(JSON.stringify({ error: 'offline' }), {
-          headers: { 'Content-Type': 'application/json' }
+      fetch(event.request)
+        .then(resp => {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+          return resp;
         })
-      )
+        .catch(() => caches.match('./index.html'))
     );
     return;
   }
 
-  // Google Fonts → cache first (cambiano raramente)
+  // Google Sheets + Supabase → sempre rete, no cache
+  if (url.hostname === 'sheets.googleapis.com' || url.hostname.endsWith('.supabase.co')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Google Fonts → cache first
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(
       caches.match(event.request).then(cached =>
@@ -68,22 +70,16 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // App shell e asset locali → cache first, fallback rete
+  // Immagini e altri asset locali → cache first, fallback rete
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
       return fetch(event.request).then(resp => {
-        // Salva in cache solo risposte valide
         if (resp && resp.status === 200 && resp.type !== 'opaque') {
           const clone = resp.clone();
           caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
         }
         return resp;
-      }).catch(() => {
-        // Se siamo offline e non c'è cache, mostra index.html
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
       });
     })
   );
