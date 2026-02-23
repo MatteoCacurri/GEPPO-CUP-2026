@@ -1,0 +1,25 @@
+{
+  "name": "Geppo World Cup 2026",
+  "short_name": "GeppoCup",
+  "description": "Torneo Calcio a 8 · Geppo World Cup 2026",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0c10",
+  "theme_color": "#e8ff00",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "IMG/logo-geppocup.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "IMG/logo-geppocup.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
