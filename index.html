@@ -337,11 +337,6 @@ function groupBy(arr, fn) {
   return arr.reduce((a,x) => { const k=fn(x); (a[k]=a[k]||[]).push(x); return a; }, {});
 }
 
-function makePills(container, opts, active, cls='') {
-  container.innerHTML = opts.map(o =>
-    `<div class="pill ${o===active?'active':''} ${cls}" data-val="${o}">${o}</div>`
-  ).join('');
-}
 
 function renderHeroStats() {
   const setTxt = (id, value) => {
