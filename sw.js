@@ -7,6 +7,7 @@ const CACHE_NAME = 'geppo-cup-v3';
 // Asset statici da cachare (NO index.html — sempre aggiornato dalla rete)
 const STATIC_ASSETS = [
   './manifest.json',
+  './styles.css',
   './IMG/logo-geppocup.png',
   './IMG/poster.jpeg',
   './IMG/premiazione.jpeg',
