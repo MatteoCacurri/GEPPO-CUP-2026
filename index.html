@@ -138,21 +138,21 @@ const CFG = {
 // FLAGS EMOJI PER NAZIONALI
 // ═══════════════════════════════════════════════════════════
 const FLAGS = {
-  'FRANCIA':'🇫🇷','INGHILTERRA':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','OLANDA':'🇳🇱','USA':'🇺🇸',
-  'CROAZIA':'🇭🇷','COLOMBIA':'🇨🇴','GIAPPONE':'🇯🇵','NORVEGIA':'🇳🇴',
-  'SVIZZERA':'🇨🇭','AUSTRIA':'🇦🇹','COREA DEL SUD':'🇰🇷','ECUADOR':'🇪🇨',
-  'SCOZIA':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','DANIMARCA':'🇩🇰','PARAGUAY':'🇵🇾','SENEGAL':'🇸🇳',
-  'CILE':'🇨🇱',"COSTA D'AVORIO":'🇨🇮','IRAN':'🇮🇷','PANAMA':'🇵🇦',
-  'QATAR':'🇶🇦','NUOVA ZELANDA':'🇳🇿','NIGERIA':'🇳🇬','ARABIA SAUDITA':'🇸🇦'
+  'ARGENTINA':'🇦🇷','BRASILE':'🇧🇷','FRANCIA':'🇫🇷','SPAGNA':'🇪🇸',
+  'PORTOGALLO':'🇵🇹','GERMANIA':'🇩🇪','INGHILTERRA':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','ITALIA':'🇮🇹',
+  'OLANDA':'🇳🇱','URUGUAY':'🇺🇾','COLOMBIA':'🇨🇴','CROAZIA':'🇭🇷',
+  'MESSICO':'🇲🇽','USA':'🇺🇸','SENEGAL':'🇸🇳','MAROCCO':'🇲🇦',
+  'NORVEGIA':'🇳🇴','SVIZZERA':'🇨🇭','GIAPPONE':'🇯🇵','SCOZIA':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'ECUADOR':'🇪🇨',"COSTA D'AVORIO":'🇨🇮','QATAR':'🇶🇦','NUOVA ZELANDA':'🇳🇿'
 };
 
 const CONTINENTI = {
-  'FRANCIA':'Europa','INGHILTERRA':'Europa','OLANDA':'Europa','USA':'America',
-  'CROAZIA':'Europa','COLOMBIA':'America','GIAPPONE':'Asia','NORVEGIA':'Europa',
-  'SVIZZERA':'Europa','AUSTRIA':'Europa','COREA DEL SUD':'Asia','ECUADOR':'America',
-  'SCOZIA':'Europa','DANIMARCA':'Europa','PARAGUAY':'America','SENEGAL':'Africa',
-  'CILE':'America',"COSTA D'AVORIO":'Africa','IRAN':'Asia','PANAMA':'America',
-  'QATAR':'Asia','NUOVA ZELANDA':'Oceania','NIGERIA':'Africa','ARABIA SAUDITA':'Asia'
+  'ARGENTINA':'America','BRASILE':'America','FRANCIA':'Europa','SPAGNA':'Europa',
+  'PORTOGALLO':'Europa','GERMANIA':'Europa','INGHILTERRA':'Europa','ITALIA':'Europa',
+  'OLANDA':'Europa','URUGUAY':'America','COLOMBIA':'America','CROAZIA':'Europa',
+  'MESSICO':'America','USA':'America','SENEGAL':'Africa','MAROCCO':'Africa',
+  'NORVEGIA':'Europa','SVIZZERA':'Europa','GIAPPONE':'Asia','SCOZIA':'Europa',
+  'ECUADOR':'America',"COSTA D'AVORIO":'Africa','QATAR':'Asia','NUOVA ZELANDA':'Oceania'
 };
 
 const FASCIA_COLORS = {
@@ -163,7 +163,7 @@ const FASCIA_NAMES = {
 };
 
 // Squadre escluse dal torneo
-const EXCLUDED_TEAMS = new Set(['ARABIA SAUDITA']);
+const EXCLUDED_TEAMS = new Set([]);
 const normalizeTeam = (name='') => String(name).trim().toUpperCase();
 const isExcludedTeam = (name='') => EXCLUDED_TEAMS.has(normalizeTeam(name));
 const hasExcludedTeam = (...teams) => teams.some(t => t && t !== 'TBD' && isExcludedTeam(t));
@@ -172,25 +172,25 @@ const hasExcludedTeam = (...teams) => teams.some(t => t && t !== 'TBD' && isExcl
 // DATI DEMO — 24 squadre reali, calendario generato
 // ═══════════════════════════════════════════════════════════
 const DEMO_SQUADRE = [
-  {"nome":"FRANCIA","fascia":1},{"nome":"INGHILTERRA","fascia":1},
-  {"nome":"OLANDA","fascia":1},{"nome":"USA","fascia":1},
-  {"nome":"CROAZIA","fascia":2},{"nome":"COLOMBIA","fascia":2},
-  {"nome":"GIAPPONE","fascia":2},{"nome":"NORVEGIA","fascia":2},
-  {"nome":"SVIZZERA","fascia":3},{"nome":"AUSTRIA","fascia":3},
-  {"nome":"COREA DEL SUD","fascia":3},{"nome":"ECUADOR","fascia":3},
-  {"nome":"SCOZIA","fascia":4},{"nome":"DANIMARCA","fascia":4},
-  {"nome":"PARAGUAY","fascia":4},{"nome":"SENEGAL","fascia":4},
-  {"nome":"CILE","fascia":5},{"nome":"COSTA D'AVORIO","fascia":5},
-  {"nome":"IRAN","fascia":5},{"nome":"PANAMA","fascia":5},
-  {"nome":"QATAR","fascia":6},{"nome":"NUOVA ZELANDA","fascia":6},
-  {"nome":"NIGERIA","fascia":6},{"nome":"ARABIA SAUDITA","fascia":6}
+  {"nome":"ARGENTINA","fascia":1},{"nome":"BRASILE","fascia":1},
+  {"nome":"FRANCIA","fascia":1},{"nome":"SPAGNA","fascia":1},
+  {"nome":"PORTOGALLO","fascia":2},{"nome":"GERMANIA","fascia":2},
+  {"nome":"INGHILTERRA","fascia":2},{"nome":"ITALIA","fascia":2},
+  {"nome":"OLANDA","fascia":3},{"nome":"URUGUAY","fascia":3},
+  {"nome":"COLOMBIA","fascia":3},{"nome":"CROAZIA","fascia":3},
+  {"nome":"MESSICO","fascia":4},{"nome":"USA","fascia":4},
+  {"nome":"SENEGAL","fascia":4},{"nome":"MAROCCO","fascia":4},
+  {"nome":"NORVEGIA","fascia":5},{"nome":"SVIZZERA","fascia":5},
+  {"nome":"GIAPPONE","fascia":5},{"nome":"SCOZIA","fascia":5},
+  {"nome":"ECUADOR","fascia":6},{"nome":"COSTA D'AVORIO","fascia":6},
+  {"nome":"QATAR","fascia":6},{"nome":"NUOVA ZELANDA","fascia":6}
 ];
 
 const DEMO_CLASSIFICA = DEMO_SQUADRE.map((s,i) => ({
   ...s, g:0, v:0, n:0, p:0, gf:0, gs:0, diff:'0', pts:0
 }));
 
-const DEMO_PARTITE = [{"giornata":1,"data":"2026-05-16","casa":"GIAPPONE","trasferta":"NIGERIA"},{"giornata":1,"data":"2026-05-16","casa":"IRAN","trasferta":"QATAR"},{"giornata":1,"data":"2026-05-16","casa":"INGHILTERRA","trasferta":"SVIZZERA"},{"giornata":1,"data":"2026-05-16","casa":"COLOMBIA","trasferta":"SCOZIA"},{"giornata":1,"data":"2026-05-16","casa":"USA","trasferta":"COLOMBIA"},{"giornata":1,"data":"2026-05-16","casa":"INGHILTERRA","trasferta":"CILE"},{"giornata":1,"data":"2026-05-16","casa":"COSTA D'AVORIO","trasferta":"NIGERIA"},{"giornata":1,"data":"2026-05-16","casa":"USA","trasferta":"AUSTRIA"},{"giornata":1,"data":"2026-05-16","casa":"SVIZZERA","trasferta":"NUOVA ZELANDA"},{"giornata":1,"data":"2026-05-16","casa":"GIAPPONE","trasferta":"COREA DEL SUD"},{"giornata":1,"data":"2026-05-16","casa":"CROAZIA","trasferta":"IRAN"},{"giornata":1,"data":"2026-05-16","casa":"FRANCIA","trasferta":"NUOVA ZELANDA"},{"giornata":2,"data":"2026-05-23","casa":"NORVEGIA","trasferta":"QATAR"},{"giornata":2,"data":"2026-05-23","casa":"GIAPPONE","trasferta":"PARAGUAY"},{"giornata":2,"data":"2026-05-23","casa":"SVIZZERA","trasferta":"CILE"},{"giornata":2,"data":"2026-05-23","casa":"AUSTRIA","trasferta":"ARABIA SAUDITA"},{"giornata":2,"data":"2026-05-23","casa":"PARAGUAY","trasferta":"ARABIA SAUDITA"},{"giornata":2,"data":"2026-05-23","casa":"PARAGUAY","trasferta":"CILE"},{"giornata":2,"data":"2026-05-23","casa":"FRANCIA","trasferta":"DANIMARCA"},{"giornata":2,"data":"2026-05-23","casa":"FRANCIA","trasferta":"COREA DEL SUD"},{"giornata":2,"data":"2026-05-23","casa":"DANIMARCA","trasferta":"PANAMA"},{"giornata":2,"data":"2026-05-23","casa":"INGHILTERRA","trasferta":"SENEGAL"},{"giornata":2,"data":"2026-05-23","casa":"USA","trasferta":"QATAR"},{"giornata":2,"data":"2026-05-23","casa":"ECUADOR","trasferta":"COSTA D'AVORIO"},{"giornata":3,"data":"2026-05-30","casa":"CROAZIA","trasferta":"ECUADOR"},{"giornata":3,"data":"2026-05-30","casa":"AUSTRIA","trasferta":"PANAMA"},{"giornata":3,"data":"2026-05-30","casa":"FRANCIA","trasferta":"COSTA D'AVORIO"},{"giornata":3,"data":"2026-05-30","casa":"COREA DEL SUD","trasferta":"IRAN"},{"giornata":3,"data":"2026-05-30","casa":"OLANDA","trasferta":"ECUADOR"},{"giornata":3,"data":"2026-05-30","casa":"CROAZIA","trasferta":"SENEGAL"},{"giornata":3,"data":"2026-05-30","casa":"FRANCIA","trasferta":"CROAZIA"},{"giornata":3,"data":"2026-05-30","casa":"USA","trasferta":"PANAMA"},{"giornata":3,"data":"2026-05-30","casa":"SENEGAL","trasferta":"COSTA D'AVORIO"},{"giornata":3,"data":"2026-05-30","casa":"PANAMA","trasferta":"NUOVA ZELANDA"},{"giornata":3,"data":"2026-05-30","casa":"COREA DEL SUD","trasferta":"SENEGAL"},{"giornata":3,"data":"2026-05-30","casa":"OLANDA","trasferta":"GIAPPONE"},{"giornata":4,"data":"2026-06-06","casa":"COLOMBIA","trasferta":"ARABIA SAUDITA"},{"giornata":4,"data":"2026-06-06","casa":"ECUADOR","trasferta":"DANIMARCA"},{"giornata":4,"data":"2026-06-06","casa":"CILE","trasferta":"ARABIA SAUDITA"},{"giornata":4,"data":"2026-06-06","casa":"AUSTRIA","trasferta":"PARAGUAY"},{"giornata":4,"data":"2026-06-06","casa":"USA","trasferta":"PARAGUAY"},{"giornata":4,"data":"2026-06-06","casa":"ECUADOR","trasferta":"NIGERIA"},{"giornata":4,"data":"2026-06-06","casa":"COREA DEL SUD","trasferta":"QATAR"},{"giornata":4,"data":"2026-06-06","casa":"NORVEGIA","trasferta":"AUSTRIA"},{"giornata":4,"data":"2026-06-06","casa":"SCOZIA","trasferta":"QATAR"},{"giornata":4,"data":"2026-06-06","casa":"OLANDA","trasferta":"IRAN"},{"giornata":4,"data":"2026-06-06","casa":"COLOMBIA","trasferta":"SVIZZERA"},{"giornata":4,"data":"2026-06-06","casa":"INGHILTERRA","trasferta":"ARABIA SAUDITA"},{"giornata":5,"data":"2026-06-13","casa":"NORVEGIA","trasferta":"COSTA D'AVORIO"},{"giornata":5,"data":"2026-06-13","casa":"OLANDA","trasferta":"NIGERIA"},{"giornata":5,"data":"2026-06-13","casa":"COLOMBIA","trasferta":"CILE"},{"giornata":5,"data":"2026-06-13","casa":"DANIMARCA","trasferta":"NUOVA ZELANDA"},{"giornata":5,"data":"2026-06-13","casa":"CROAZIA","trasferta":"NUOVA ZELANDA"},{"giornata":5,"data":"2026-06-13","casa":"INGHILTERRA","trasferta":"NORVEGIA"},{"giornata":5,"data":"2026-06-13","casa":"SENEGAL","trasferta":"NIGERIA"},{"giornata":5,"data":"2026-06-13","casa":"OLANDA","trasferta":"SCOZIA"},{"giornata":5,"data":"2026-06-13","casa":"SVIZZERA","trasferta":"SCOZIA"},{"giornata":5,"data":"2026-06-13","casa":"GIAPPONE","trasferta":"PANAMA"},{"giornata":5,"data":"2026-06-13","casa":"NORVEGIA","trasferta":"DANIMARCA"},{"giornata":5,"data":"2026-06-13","casa":"SCOZIA","trasferta":"IRAN"}];
+const DEMO_PARTITE = [];
 
 const DEMO_MARCATORI = [];
 
