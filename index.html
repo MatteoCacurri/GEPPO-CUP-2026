@@ -16,6 +16,34 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=Poppins:wght@400;500;600;700;800&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<style>
+/* ── ROSA MODAL ── */
+.sq-clickable{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.sq-clickable:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.rosa-hint{font-size:.65rem;font-family:'Barlow Condensed',sans-serif;color:#6b7585;font-weight:400;margin-left:.4rem;vertical-align:middle}
+
+.rosa-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);z-index:9999;display:flex;align-items:flex-end;justify-content:center;animation:rmFadeIn .2s ease}
+@keyframes rmFadeIn{from{opacity:0}to{opacity:1}}
+
+.rosa-modal{background:#111418;border-radius:18px 18px 0 0;width:100%;max-width:540px;max-height:80vh;display:flex;flex-direction:column;animation:rmSlideUp .25s ease}
+@keyframes rmSlideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.rosa-modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.2rem .9rem}
+.rosa-modal-title{display:flex;align-items:center;gap:.5rem;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.4rem;text-transform:uppercase;letter-spacing:.05em}
+.rosa-modal-flag{font-size:1.6rem}
+.rosa-close{background:#1e2329;border:none;color:#6b7585;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rosa-close:hover{color:#f0f2f5}
+
+.rosa-modal-body{overflow-y:auto;padding:.6rem 1.2rem 1.5rem}
+.rosa-count{font-size:.75rem;color:#6b7585;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8rem}
+
+.rosa-portiere{display:flex;align-items:center;justify-content:space-between;background:#181c22;border-radius:10px;padding:.65rem .9rem;margin-bottom:.6rem;border-left:3px solid #e8ff00}
+.rosa-role-badge{font-size:.6rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.1em;color:#e8ff00;background:rgba(232,255,0,.1);border:1px solid rgba(232,255,0,.3);border-radius:4px;padding:2px 6px;text-transform:uppercase;flex-shrink:0}
+
+.rosa-campo{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.rosa-player{background:#181c22;border-radius:8px;padding:.5rem .8rem}
+.rosa-player-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:#f0f2f5}
+</style>
 </head>
 <body>
 
@@ -593,7 +621,7 @@ function renderSquadre() {
 // MODAL ROSA SQUADRA
 // ═══════════════════════════════════════════════════════════
 function showRosa(teamName) {
-  const giocatori = (DATA.giocatori||[]).filter(g => g.squadra === teamName);
+  const giocatori = (DATA.giocatori||[]).filter(g => g.squadra.toUpperCase() === teamName.toUpperCase());
   if (!giocatori.length) return;
 
   const color = fc(teamName);
