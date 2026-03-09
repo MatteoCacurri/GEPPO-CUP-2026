@@ -291,13 +291,13 @@ function parseFinale(rows) {
 }
 
 async function loadFromSheet() {
-  const [clRaw, pRaw, mRaw, fRaw, gRaw] = await Promise.all([
+  const [clRaw, pRaw, mRaw, fRaw] = await Promise.all([
     sheetFetch('Classifica!A:J'),
     sheetFetch('Risultati!A:H'),
     sheetFetch('Marcatori!A:D'),
     sheetFetch('Fase Finale!A:F'),
-    sheetFetch('Rose!A:C'),
   ]);
+  const gRaw = await sheetFetch('Rose!A:C').catch(() => []);
   const classifica = parseClassifica(clRaw);
   const squadre = classifica.map(s => ({nome:s.nome, fascia:s.fascia}));
   return {
