@@ -297,7 +297,10 @@ async function loadFromSheet() {
     sheetFetch('Marcatori!A:D'),
     sheetFetch('Fase Finale!A:F'),
   ]);
-  const gRaw = await sheetFetch('Rose!A:C').catch(() => []);
+  const gRaw = await sheetFetch('Rose!A:C').catch(async () => {
+    // prova anche con nome alternativo
+    return await sheetFetch('Rosa!A:C').catch(() => []);
+  });
   const classifica = parseClassifica(clRaw);
   const squadre = classifica.map(s => ({nome:s.nome, fascia:s.fascia}));
   return {
@@ -562,7 +565,7 @@ function renderSquadre() {
   document.getElementById('sq-content').innerHTML = sq.map((s,i) => {
     const color = FASCIA_COLORS[s.fascia];
     const st = statsMap[s.nome]||{};
-    const hasRosa = (DATA.giocatori||[]).some(g => g.squadra === s.nome);
+    const hasRosa = (DATA.giocatori||[]).some(g => g.squadra.toUpperCase() === s.nome.toUpperCase());
     const rosaHint = hasRosa ? `<span class="rosa-hint">👥 Rosa</span>` : '';
     return `<div class="sq-card ${hasRosa?'sq-clickable':''}" data-team="${s.nome}" style="animation-delay:${i*.03}s">
       <div class="sq-flag">${flag(s.nome)}</div>
@@ -724,12 +727,13 @@ function render() {
   document.getElementById('sq-sub').textContent = `${teamsCount} nazionali · ${fasceCount} fasce`;
 
   const now = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const gCount = DATA.giocatori?.length || 0;
   if (isDemo) {
     document.getElementById('bot-bar').innerHTML =
       `<span style="color:var(--acc);font-weight:600">⚠️ DEMO — Collega il tuo Google Sheet per dati reali</span>`;
   } else {
     document.getElementById('bot-bar').innerHTML =
-      `<span class="live-dot"></span><span id="bot-txt">Aggiornato alle ${now}</span>`;
+      `<span class="live-dot"></span><span id="bot-txt">Aggiornato alle ${now} · ${gCount} giocatori in rosa</span>`;
   }
 }
 
