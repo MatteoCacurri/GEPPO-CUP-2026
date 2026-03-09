@@ -194,6 +194,8 @@ const DEMO_PARTITE = [];
 
 const DEMO_MARCATORI = [];
 
+const DEMO_GIOCATORI = [];
+
 const DEMO_FINALE = {
   mondiale:  { campione:'', quarti:[], semi:[], finale:[] },
   argento:   { campione:'', quarti:[], semi:[], finale:[] },
@@ -209,6 +211,7 @@ let filterP  = 'tutti';
 let filterM  = 'tutti';
 let filterSq = 'tutti';
 let filterF  = 'mondiale';
+let selectedTeam = null;
 
 // ═══════════════════════════════════════════════════════════
 // GOOGLE SHEETS FETCH
@@ -240,6 +243,20 @@ function parsePartite(rows) {
     giornata:+r[0]||1, data:r[1]||'', casa:r[2]||'',
     gol_casa:r[3], gol_trasf:r[5], trasferta:r[6]||'', note:r[7]||''
   }));
+}
+
+function parseGiocatori(rows) {
+  // Colonna A: SQUADRA (solo sulla prima riga della squadra, poi vuota)
+  // Colonna B: NOME, Colonna C: RUOLO ("PORTIERE" o vuoto)
+  let currentTeam = '';
+  return rows.slice(1).filter(r => r[1] && r[1].trim()).map(r => {
+    if (r[0] && r[0].trim()) currentTeam = r[0].trim().toUpperCase();
+    return {
+      squadra: currentTeam,
+      nome: (r[1] || '').trim(),
+      portiere: (r[2] || '').trim().toUpperCase() === 'PORTIERE'
+    };
+  }).filter(g => g.squadra && g.nome);
 }
 
 function parseMarcatori(rows) {
@@ -274,11 +291,12 @@ function parseFinale(rows) {
 }
 
 async function loadFromSheet() {
-  const [clRaw, pRaw, mRaw, fRaw] = await Promise.all([
+  const [clRaw, pRaw, mRaw, fRaw, gRaw] = await Promise.all([
     sheetFetch('Classifica!A:J'),
     sheetFetch('Risultati!A:H'),
     sheetFetch('Marcatori!A:D'),
     sheetFetch('Fase Finale!A:F'),
+    sheetFetch('Rose!A:C'),
   ]);
   const classifica = parseClassifica(clRaw);
   const squadre = classifica.map(s => ({nome:s.nome, fascia:s.fascia}));
@@ -288,18 +306,19 @@ async function loadFromSheet() {
     partite: parsePartite(pRaw),
     marcatori: parseMarcatori(mRaw),
     finale: parseFinale(fRaw),
+    giocatori: parseGiocatori(gRaw),
   };
 }
 
 async function loadData() {
   isDemo = CFG.sheetId === 'TUO_SHEET_ID_QUI';
   if (isDemo) {
-    DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE };
+    DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
   } else {
     try {
       DATA = await loadFromSheet();
     } catch(e) {
-      DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE };
+      DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
       isDemo = true;
     }
   }
@@ -543,10 +562,12 @@ function renderSquadre() {
   document.getElementById('sq-content').innerHTML = sq.map((s,i) => {
     const color = FASCIA_COLORS[s.fascia];
     const st = statsMap[s.nome]||{};
-    return `<div class="sq-card" style="animation-delay:${i*.03}s">
+    const hasRosa = (DATA.giocatori||[]).some(g => g.squadra === s.nome);
+    const rosaHint = hasRosa ? `<span class="rosa-hint">👥 Rosa</span>` : '';
+    return `<div class="sq-card ${hasRosa?'sq-clickable':''}" data-team="${s.nome}" style="animation-delay:${i*.03}s">
       <div class="sq-flag">${flag(s.nome)}</div>
       <div class="sq-info">
-        <div class="sq-name">${s.nome}</div>
+        <div class="sq-name">${s.nome} ${rosaHint}</div>
         <div class="sq-meta">
           <span class="f-badge" style="background:${color}22;color:${color};border:1px solid ${color}44">F${s.fascia} · ${FASCIA_NAMES[s.fascia]}</span>
           <span>${CONTINENTI[s.nome]||''}</span>
@@ -559,6 +580,57 @@ function renderSquadre() {
       </div>
     </div>`;
   }).join('');
+
+  document.querySelectorAll('.sq-card.sq-clickable').forEach(card => {
+    card.addEventListener('click', () => showRosa(card.dataset.team));
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL ROSA SQUADRA
+// ═══════════════════════════════════════════════════════════
+function showRosa(teamName) {
+  const giocatori = (DATA.giocatori||[]).filter(g => g.squadra === teamName);
+  if (!giocatori.length) return;
+
+  const color = fc(teamName);
+  const portiere = giocatori.find(g => g.portiere);
+  const giocatoriCampo = giocatori.filter(g => !g.portiere);
+
+  const listaHTML = `
+    ${portiere ? `
+      <div class="rosa-portiere">
+        <div class="rosa-player-name">🧤 ${portiere.nome}</div>
+        <div class="rosa-role-badge">PORTIERE</div>
+      </div>` : ''}
+    <div class="rosa-campo">
+      ${giocatoriCampo.map(g => `
+        <div class="rosa-player">
+          <div class="rosa-player-name">${g.nome}</div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  const modal = document.createElement('div');
+  modal.className = 'rosa-modal-overlay';
+  modal.innerHTML = `
+    <div class="rosa-modal">
+      <div class="rosa-modal-hdr" style="border-bottom:2px solid ${color}">
+        <div class="rosa-modal-title">
+          <span class="rosa-modal-flag">${flag(teamName)}</span>
+          <span style="color:${color}">${teamName}</span>
+        </div>
+        <button class="rosa-close" onclick="this.closest('.rosa-modal-overlay').remove()">✕</button>
+      </div>
+      <div class="rosa-modal-body">
+        <div class="rosa-count">${giocatori.length} giocatori in rosa</div>
+        ${listaHTML}
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
 
 // ═══════════════════════════════════════════════════════════

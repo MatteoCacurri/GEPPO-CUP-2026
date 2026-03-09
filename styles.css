@@ -640,3 +640,129 @@ nav{
   .gol-n{font-size:1.5rem}
 }
 
+/* ── ROSA SQUADRA ── */
+.sq-clickable{
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.sq-clickable:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.rosa-hint{
+  font-size:.65rem;
+  font-family:'Barlow Condensed',sans-serif;
+  color:var(--muted);
+  font-weight:400;
+  margin-left:.4rem;
+  vertical-align:middle;
+}
+
+/* Modal overlay */
+.rosa-modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  z-index:9999;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.rosa-modal{
+  background:var(--bg2);
+  border-radius:18px 18px 0 0;
+  width:100%;
+  max-width:540px;
+  max-height:80vh;
+  display:flex;
+  flex-direction:column;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.rosa-modal-hdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:1.1rem 1.2rem .9rem;
+}
+.rosa-modal-title{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:800;
+  font-size:1.4rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.rosa-modal-flag{font-size:1.6rem}
+.rosa-close{
+  background:var(--bg4);
+  border:none;
+  color:var(--muted);
+  width:32px;height:32px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rosa-close:hover{color:var(--text)}
+
+.rosa-modal-body{
+  overflow-y:auto;
+  padding:.6rem 1.2rem 1.5rem;
+}
+.rosa-count{
+  font-size:.75rem;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:.8rem;
+}
+
+/* Portiere */
+.rosa-portiere{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--bg3);
+  border-radius:10px;
+  padding:.6rem .9rem;
+  margin-bottom:.5rem;
+  border-left:3px solid #e8ff00;
+}
+.rosa-role-badge{
+  font-size:.6rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;
+  letter-spacing:.1em;
+  color:#e8ff00;
+  background:rgba(232,255,0,.1);
+  border:1px solid rgba(232,255,0,.3);
+  border-radius:4px;
+  padding:2px 6px;
+  text-transform:uppercase;
+}
+
+/* Giocatori di campo */
+.rosa-campo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.4rem;
+}
+.rosa-player{
+  background:var(--bg3);
+  border-radius:8px;
+  padding:.5rem .8rem;
+}
+.rosa-player-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1rem;
+  font-weight:600;
+  color:var(--text);
+}
+
