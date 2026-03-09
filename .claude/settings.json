@@ -3,7 +3,16 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx create-video@latest geppo-cup-promo --yes)",
+      "Bash(npm create video@latest -- --template blank --path geppo-cup-promo)",
+      "Bash(npm install --save-exact remotion@4.0.290 @remotion/cli@4.0.290 react@18.3.1 react-dom@18.3.1)",
+      "Bash(npm install --save-dev typescript@5 @types/react@18 @types/react-dom@18)"
+    ],
+    "additionalDirectories": [
+      "/home/cacu/Scrivania/SITI_WEB/geppo-cup-promo",
+      "/home/cacu/Scrivania/SITI_WEB/VIDEO_SITI/src/compositions",
+      "/home/cacu/Scrivania/SITI_WEB/VIDEO_SITI/public"
     ]
   }
 }
