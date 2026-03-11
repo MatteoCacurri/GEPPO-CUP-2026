@@ -44,6 +44,11 @@
 .rosa-player{background:#181c22;border-radius:8px;padding:.5rem .8rem}
 .rosa-player-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:#f0f2f5}
 
+/* Sticky top bar: header + nav sempre visibili in cima */
+#sticky-top{position:sticky;top:0;z-index:200}
+header{position:relative!important;top:auto!important}
+nav{position:relative!important;top:auto!important;margin-top:0!important}
+
 /* Home section: reset completo stili .section, la hero gestisce il proprio layout */
 #home{padding:0;max-width:none;width:100%;margin:0;background:none;border:none;border-radius:0;backdrop-filter:none;box-shadow:none}
 
@@ -86,6 +91,7 @@ html{background:linear-gradient(160deg,#091919 0%,#0d2222 30%,#112d2d 60%,#0d222
 </head>
 <body>
 
+<div id="sticky-top">
 <header>
   <div class="logo">
     <img class="logo-mark" src="IMG/logo-geppocup.png" alt="Geppo Cup Logo">
@@ -105,6 +111,7 @@ html{background:linear-gradient(160deg,#091919 0%,#0d2222 30%,#112d2d 60%,#0d222
   <div class="tab" data-tab="squadre">Squadre</div>
   <div class="tab" data-tab="finale">Finale</div>
 </nav>
+</div>
 
 <div class="section active" id="home">
 <section class="world-hero">
