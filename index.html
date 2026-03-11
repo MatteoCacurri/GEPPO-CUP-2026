@@ -49,6 +49,39 @@
 
 /* Sfondo html uguale al body per evitare il bianco del browser sotto i contenuti */
 html{background:linear-gradient(160deg,#091919 0%,#0d2222 30%,#112d2d 60%,#0d2222 100%);min-height:100%}
+
+/* ── BRACKET TABELLONE ── */
+.bracket-wrap{overflow-x:auto;padding:.5rem 0 1rem;-webkit-overflow-scrolling:touch}
+.bracket{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr 24px 1fr 24px 1fr;align-items:stretch;min-width:600px;gap:0}
+.bk-col{display:flex;flex-direction:column;justify-content:space-around;gap:8px}
+.bk-col.qf{gap:8px}
+.bk-col.sf{justify-content:space-around;gap:0}
+.bk-col.fin{justify-content:center;align-items:stretch}
+
+.bk-match{background:#181c22;border:1px solid rgba(42,90,90,.5);border-radius:8px;overflow:hidden;min-width:120px}
+.bk-team{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:600;gap:4px;white-space:nowrap}
+.bk-team+.bk-team{border-top:1px solid rgba(42,90,90,.3)}
+.bk-team.winner{background:rgba(42,138,138,.2)}
+.bk-team.tbd-t{color:#6b7585;font-style:italic}
+.bk-score{font-weight:800;font-size:.95rem;color:var(--acc);min-width:14px;text-align:right;flex-shrink:0}
+.bk-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);text-align:center;margin-bottom:4px;opacity:.8}
+
+/* Connettori CSS tra colonne */
+.bk-conn{display:flex;flex-direction:column;height:100%}
+.bk-conn-top{flex:1;border-right:2px solid rgba(42,90,90,.5);border-bottom:2px solid rgba(42,90,90,.5);border-radius:0 0 6px 0}
+.bk-conn-bot{flex:1;border-right:2px solid rgba(42,90,90,.5);border-top:2px solid rgba(42,90,90,.5);border-radius:0 6px 0 0}
+.bk-conn-mid{width:100%;border-top:2px solid rgba(42,90,90,.5);align-self:center}
+.bk-conn-h{display:flex;align-items:center;height:100%}
+.bk-conn-h-line{width:100%;border-top:2px solid rgba(42,90,90,.5)}
+/* Connettore a "parentesi" per coppie QF→SF */
+.bk-pair-conn{display:flex;flex-direction:column;height:100%}
+.bk-pair-conn .top{flex:1;border-right:2px solid rgba(42,90,90,.5);border-bottom:2px solid rgba(42,90,90,.5)}
+.bk-pair-conn .bot{flex:1;border-right:2px solid rgba(42,90,90,.5);border-top:2px solid rgba(42,90,90,.5)}
+.bk-sf-conn{display:flex;flex-direction:column;height:100%}
+.bk-sf-conn .top{flex:1;border-right:2px solid rgba(42,90,90,.5);border-bottom:2px solid rgba(42,90,90,.5)}
+.bk-sf-conn .bot{flex:1;border-right:2px solid rgba(42,90,90,.5);border-top:2px solid rgba(42,90,90,.5)}
+.bk-terzo{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(42,90,90,.3)}
+.bk-terzo-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:.5rem}
 </style>
 </head>
 <body>
@@ -703,46 +736,120 @@ function renderFinale() {
     </div>`;
   }
 
-  function renderRound(label, matches) {
-    if (!matches || matches.length === 0) return '';
-    const ms = matches.map(m => {
-      const played = m.g1!==''&&m.g1!==undefined&&m.g1!==null&&m.s1!=='TBD';
-      const isTbd1 = !m.s1 || m.s1==='TBD';
-      const isTbd2 = !m.s2 || m.s2==='TBD';
-      const w1 = played && +m.g1 > +m.g2;
-      const w2 = played && +m.g2 > +m.g1;
-      const c1 = isTbd1 ? 'var(--muted)' : fc(m.s1);
-      const c2 = isTbd2 ? 'var(--muted)' : fc(m.s2);
-      return `<div class="br-match">
-        <div class="br-team ${w1?'winner':''} ${isTbd1?'tbd-t':''}" style="${w1?`color:${c1}`:''}">
-          <span>${isTbd1?'':flag(m.s1)} ${m.s1||'TBD'}</span>
-          <span class="br-score">${played?m.g1:''}</span>
-        </div>
-        <div class="br-team ${w2?'winner':''} ${isTbd2?'tbd-t':''}" style="${w2?`color:${c2}`:''}">
-          <span>${isTbd2?'':flag(m.s2)} ${m.s2||'TBD'}</span>
-          <span class="br-score">${played?m.g2:''}</span>
-        </div>
+  // Helper: genera HTML di una singola partita del bracket
+  function bkMatch(m, labelText) {
+    if (!m) {
+      return `<div class="bk-match">
+        ${labelText ? `<div class="bk-label">${labelText}</div>` : ''}
+        <div class="bk-team tbd-t"><span>TBD</span></div>
+        <div class="bk-team tbd-t"><span>TBD</span></div>
       </div>`;
-    }).join('');
-    return `<div class="round-section">
-      <div class="round-lbl">${label}</div>
-      ${ms}
+    }
+    const played = m.g1!==''&&m.g1!==undefined&&m.g1!==null&&m.s1!=='TBD';
+    const isTbd1 = !m.s1||m.s1==='TBD';
+    const isTbd2 = !m.s2||m.s2==='TBD';
+    const w1 = played && +m.g1 > +m.g2;
+    const w2 = played && +m.g2 > +m.g1;
+    const c1 = isTbd1?'var(--muted)':fc(m.s1);
+    const c2 = isTbd2?'var(--muted)':fc(m.s2);
+    return `<div class="bk-match">
+      ${labelText ? `<div class="bk-label">${labelText}</div>` : ''}
+      <div class="bk-team ${w1?'winner':''} ${isTbd1?'tbd-t':''}" style="${w1?`color:${c1}`:''}">
+        <span>${isTbd1?'':flag(m.s1)} ${m.s1||'TBD'}</span>
+        <span class="bk-score">${played?m.g1:''}</span>
+      </div>
+      <div class="bk-team ${w2?'winner':''} ${isTbd2?'tbd-t':''}" style="${w2?`color:${c2}`:''}">
+        <span>${isTbd2?'':flag(m.s2)} ${m.s2||'TBD'}</span>
+        <span class="bk-score">${played?m.g2:''}</span>
+      </div>
     </div>`;
   }
 
-  html += renderRound('Quarti di Finale', fin.quarti);
-  html += renderRound('Semifinali', fin.semi);
-  if (filterF==='mondiale') html += renderRound('3° Posto', fin.terzo||[]);
-  html += renderRound('Finale', fin.finale);
+  // Helper: connettore a parentesi tra 2 QF e 1 SF (destra)
+  function connQF2SF() {
+    return `<div style="display:flex;flex-direction:column;height:100%;align-self:stretch">
+      <div style="flex:1;border-right:2px solid rgba(42,90,90,.5);border-bottom:2px solid rgba(42,90,90,.5);border-radius:0 0 6px 0"></div>
+      <div style="flex:1;border-right:2px solid rgba(42,90,90,.5);border-top:2px solid rgba(42,90,90,.5);border-radius:0 6px 0 0"></div>
+    </div>`;
+  }
 
-  if (!fin.campione && !fin.quarti?.length && !fin.semi?.length && !fin.finale?.length) {
+  // Helper: connettore a parentesi speculare (sinistra, per lato destro)
+  function connQF2SF_rev() {
+    return `<div style="display:flex;flex-direction:column;height:100%;align-self:stretch">
+      <div style="flex:1;border-left:2px solid rgba(42,90,90,.5);border-bottom:2px solid rgba(42,90,90,.5);border-radius:0 0 0 6px"></div>
+      <div style="flex:1;border-left:2px solid rgba(42,90,90,.5);border-top:2px solid rgba(42,90,90,.5);border-radius:6px 0 0 0"></div>
+    </div>`;
+  }
+
+  // Helper: connettore orizzontale semplice
+  function connH() {
+    return `<div style="width:100%;border-top:2px solid rgba(42,90,90,.5);align-self:center"></div>`;
+  }
+
+  // Normalizza array con TBD se mancante
+  const q = [...(fin.quarti||[])];
+  while (q.length < 4) q.push(null);
+  const s = [...(fin.semi||[])];
+  while (s.length < 2) s.push(null);
+  const f = fin.finale?.[0] || null;
+
+  const hasAny = fin.campione || fin.quarti?.length || fin.semi?.length || fin.finale?.length;
+  if (!hasAny) {
     html += `<div style="text-align:center;padding:2.5rem 1rem;color:var(--muted);
       font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;
       letter-spacing:.1em;font-size:.9rem">
       Il girone deve ancora terminare<br>
       <span style="font-size:.75rem;margin-top:.5rem;display:block">Le squadre qualificate appariranno qui</span>
     </div>`;
+    document.getElementById('f-content').innerHTML = html;
+    return;
   }
+
+  // Tabellone orizzontale: 9 colonne (QF-L | conn | SF-L | conn | FIN | conn | SF-R | conn | QF-R)
+  html += `<div class="bracket-wrap">
+    <div class="bracket">
+
+      <!-- Col 1: QF sinistri -->
+      <div class="bk-col qf" style="gap:8px">
+        <div><div class="bk-label">Quarto 1</div>${bkMatch(q[0])}</div>
+        <div><div class="bk-label">Quarto 2</div>${bkMatch(q[1])}</div>
+      </div>
+
+      <!-- Col 2: connettore QF→SF sinistro -->
+      <div style="align-self:stretch">${connQF2SF()}</div>
+
+      <!-- Col 3: SF sinistro -->
+      <div class="bk-col sf" style="justify-content:center">
+        <div><div class="bk-label">Semifinale</div>${bkMatch(s[0])}</div>
+      </div>
+
+      <!-- Col 4: connettore SF→Finale sinistro -->
+      <div style="align-self:center">${connH()}</div>
+
+      <!-- Col 5: Finale -->
+      <div class="bk-col fin">
+        <div><div class="bk-label" style="font-size:.75rem;color:var(--acc)">⚽ FINALE</div>${bkMatch(f)}</div>
+      </div>
+
+      <!-- Col 6: connettore Finale←SF destro -->
+      <div style="align-self:center">${connH()}</div>
+
+      <!-- Col 7: SF destro -->
+      <div class="bk-col sf" style="justify-content:center">
+        <div><div class="bk-label">Semifinale</div>${bkMatch(s[1])}</div>
+      </div>
+
+      <!-- Col 8: connettore SF←QF destro -->
+      <div style="align-self:stretch">${connQF2SF_rev()}</div>
+
+      <!-- Col 9: QF destri -->
+      <div class="bk-col qf" style="gap:8px">
+        <div><div class="bk-label">Quarto 3</div>${bkMatch(q[2])}</div>
+        <div><div class="bk-label">Quarto 4</div>${bkMatch(q[3])}</div>
+      </div>
+
+    </div>
+  </div>`;
 
   document.getElementById('f-content').innerHTML = html;
 }
