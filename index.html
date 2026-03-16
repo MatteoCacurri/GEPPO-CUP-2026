@@ -208,7 +208,7 @@ html{background:linear-gradient(160deg,#091919 0%,#0d2222 30%,#112d2d 60%,#0d222
 const CFG = {
   sheetId:  '1OAuJr6h77tCnQRFx0sRB_Sd20fLaSzQpbUO_VhBhAwQ',   // ID del tuo Google Sheet
   apiKey:   'AIzaSyC6PJ_73qQuCPbdYKanZgnO1n117VLnBv4',    // API Key Google
-  refresh:  30,                   // secondi tra un aggiornamento e l'altro
+  refresh:  60,                   // secondi tra un aggiornamento e l'altro
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -294,7 +294,7 @@ let selectedTeam = null;
 // GOOGLE SHEETS FETCH
 // ═══════════════════════════════════════════════════════════
 async function sheetFetch(range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(range)}?key=${CFG.apiKey}`;
+  const url = `/api/sheet?range=${encodeURIComponent(range)}`;
   const r = await fetch(url);
   if (!r.ok) throw new Error('Sheet error ' + r.status);
   const j = await r.json();
@@ -392,16 +392,41 @@ async function loadFromSheet() {
   };
 }
 
+const LS_KEY = 'geppo_data_v1';
+const LS_TTL = 60 * 1000; // 60 secondi
+
+function lsLoad() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts < LS_TTL) return data;
+  } catch(e) {}
+  return null;
+}
+
+function lsSave(data) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+}
+
 async function loadData() {
   isDemo = CFG.sheetId === 'TUO_SHEET_ID_QUI';
   if (isDemo) {
     DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
   } else {
+    const cached = lsLoad();
+    if (cached) {
+      DATA = cached;
+      render();
+    }
     try {
       DATA = await loadFromSheet();
+      lsSave(DATA);
     } catch(e) {
-      DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
-      isDemo = true;
+      if (!cached) {
+        DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
+        isDemo = true;
+      }
     }
   }
   render();
@@ -906,7 +931,12 @@ document.querySelectorAll('.tab').forEach(tab => {
 // INIT + AUTO REFRESH
 // ═══════════════════════════════════════════════════════════
 loadData();
-setInterval(() => { if(!isDemo) loadData(); }, CFG.refresh * 1000);
+setInterval(() => {
+  if (!isDemo && document.visibilityState === 'visible') loadData();
+}, CFG.refresh * 1000);
+document.addEventListener('visibilitychange', () => {
+  if (!isDemo && document.visibilityState === 'visible') loadData();
+});
 
 // ═══════════════════════════════════════════════════════════
 // PWA — SERVICE WORKER
