@@ -2,7 +2,7 @@
 // GEPPO WORLD CUP 2026 — Service Worker
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'geppo-cup-v3';
+const CACHE_NAME = 'geppo-cup-v4';
 
 // Asset statici da cachare (NO index.html — sempre aggiornato dalla rete)
 const STATIC_ASSETS = [
@@ -51,8 +51,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Google Sheets + Supabase → sempre rete, no cache
-  if (url.hostname === 'sheets.googleapis.com' || url.hostname.endsWith('.supabase.co')) {
+  // Google Sheets, Supabase, proxy API → sempre rete, no cache
+  if (url.hostname === 'sheets.googleapis.com' || url.hostname.endsWith('.supabase.co') || url.pathname.startsWith('/api/')) {
     event.respondWith(fetch(event.request));
     return;
   }
