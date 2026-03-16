@@ -324,14 +324,15 @@ function parsePartite(rows) {
 
 function parseGiocatori(rows) {
   // Colonna A: SQUADRA (solo sulla prima riga della squadra, poi vuota)
-  // Colonna B: NOME, Colonna C: RUOLO ("PORTIERE" o vuoto)
+  // Colonna B: NOME, Colonna C: RUOLO ("PORTIERE" o vuoto), Colonna D: GOL
   let currentTeam = '';
   return rows.slice(1).filter(r => r[1] && r[1].trim()).map(r => {
     if (r[0] && r[0].trim()) currentTeam = r[0].trim().toUpperCase();
     return {
       squadra: currentTeam,
       nome: (r[1] || '').trim(),
-      portiere: (r[2] || '').trim().toUpperCase() === 'PORTIERE'
+      portiere: (r[2] || '').trim().toUpperCase() === 'PORTIERE',
+      gol: +r[3] || 0
     };
   }).filter(g => g.squadra && g.nome);
 }
@@ -374,19 +375,20 @@ async function loadFromSheet() {
     sheetFetch('Marcatori!A:D'),
     sheetFetch('Fase Finale!A:F'),
   ]);
-  const gRaw = await sheetFetch('Rose!A:C').catch(async () => {
-    // prova anche con nome alternativo
-    return await sheetFetch('Rosa!A:C').catch(() => []);
+  const gRaw = await sheetFetch('Rose!A:D').catch(async () => {
+    return await sheetFetch('Rosa!A:D').catch(() => []);
   });
   const classifica = parseClassifica(clRaw);
   const squadre = classifica.map(s => ({nome:s.nome, fascia:s.fascia}));
+  const giocatori = parseGiocatori(gRaw);
+  const marcatori = giocatori.filter(g => g.gol > 0).sort((a,b) => b.gol - a.gol);
   return {
     classifica,
     squadre,
     partite: parsePartite(pRaw),
-    marcatori: parseMarcatori(mRaw),
+    marcatori,
     finale: parseFinale(fRaw),
-    giocatori: parseGiocatori(gRaw),
+    giocatori,
   };
 }
 
@@ -586,7 +588,7 @@ function renderMarcatori() {
   const max = sc[0]?.gol || 1;
 
   if (sc.length === 0) {
-    document.getElementById('m-content').innerHTML = `<div class="demo-notice">⚽ Nessun marcatore inserito ancora.<br>Aggiungi i gol nel foglio Google → sheet "Marcatori"</div>`;
+    document.getElementById('m-content').innerHTML = `<div class="demo-notice">⚽ Nessun marcatore ancora.<br>Inserisci i gol nella colonna GOL del tab Rose.</div>`;
     return;
   }
 
