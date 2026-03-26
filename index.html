@@ -563,31 +563,36 @@ function renderPartite() {
     matches = matches.filter(m => m.casa===filterP || m.trasferta===filterP);
   }
 
-  const grouped = groupBy(matches, m=>m.data);
-  const dates = Object.keys(grouped).sort((a,b) => {
-    // Handle both DD/MM/YYYY and YYYY-MM-DD
-    const toISO = s => s.includes('/') ? s.split('/').reverse().join('-') : s;
-    return toISO(a).localeCompare(toISO(b));
-  });
+  const toISO = s => s.includes('/') ? s.split('/').reverse().join('-') : s;
+  const byGiornata = groupBy(matches, m=>m.giornata);
+  const giornate = Object.keys(byGiornata).map(Number).sort((a,b)=>a-b);
 
-  const html = dates.map(d => {
-    const ms = grouped[d].map(m => {
-      const played = m.gol_casa!==undefined && m.gol_casa!==null && m.gol_casa!=='';
-      const scoreTxt = played ? `${m.gol_casa} - ${m.gol_trasf}` : 'vs';
-      const scoreCls = played ? '' : 'tbd';
-      const colorC = fc(m.casa), colorT = fc(m.trasferta);
-      const detail = m.note ? `<div class="m-meta"><span>📍 ${m.note}</span></div>` : '';
-      return `<div class="match-card">
-        <div class="match-row">
-          <div class="m-team-l"><span>${m.casa}</span><span>${flag(m.casa)}</span></div>
-          <div class="m-score ${scoreCls}">${scoreTxt}</div>
-          <div class="m-team-r"><span>${flag(m.trasferta)}</span><span>${m.trasferta}</span></div>
-        </div>${detail}
+  const html = giornate.map(gg => {
+    const grouped = groupBy(byGiornata[gg], m=>m.data);
+    const dates = Object.keys(grouped).sort((a,b) => toISO(a).localeCompare(toISO(b)));
+    const daysHtml = dates.map(d => {
+      const ms = grouped[d].map(m => {
+        const played = m.gol_casa!==undefined && m.gol_casa!==null && m.gol_casa!=='';
+        const scoreTxt = played ? `${m.gol_casa} - ${m.gol_trasf}` : 'vs';
+        const scoreCls = played ? '' : 'tbd';
+        const colorC = fc(m.casa), colorT = fc(m.trasferta);
+        const detail = m.note ? `<div class="m-meta"><span>🕐 ${m.note}</span></div>` : '';
+        return `<div class="match-card">
+          <div class="match-row">
+            <div class="m-team-l"><span>${m.casa}</span><span>${flag(m.casa)}</span></div>
+            <div class="m-score ${scoreCls}">${scoreTxt}</div>
+            <div class="m-team-r"><span>${flag(m.trasferta)}</span><span>${m.trasferta}</span></div>
+          </div>${detail}
+        </div>`;
+      }).join('');
+      return `<div class="date-grp">
+        <div class="date-lbl">⚡ ${fmtDate(d)}</div>
+        ${ms}
       </div>`;
     }).join('');
-    return `<div class="date-grp">
-      <div class="date-lbl">⚡ ${fmtDate(d)}</div>
-      ${ms}
+    return `<div class="gg-section">
+      <div class="gg-divider">GIORNATA ${gg}</div>
+      ${daysHtml}
     </div>`;
   }).join('');
 

@@ -107,6 +107,12 @@ nav::-webkit-scrollbar{display:none}
   letter-spacing:.14em;text-transform:uppercase}
 
 /* ── RISULTATI ── */
+.gg-section{margin-bottom:2.5rem}
+.gg-divider{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;
+  letter-spacing:.2em;text-transform:uppercase;color:#fff;
+  background:linear-gradient(90deg,var(--acc),transparent);
+  padding:.5rem 1rem;border-left:4px solid var(--acc);border-radius:4px;
+  margin-bottom:1.2rem}
 .date-grp{margin-bottom:1.4rem}
 .date-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:800;
   letter-spacing:.14em;text-transform:uppercase;color:var(--acc);
