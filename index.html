@@ -772,15 +772,15 @@ function showRosa(teamName) {
   if (!giocatori.length) return;
 
   const color = fc(teamName);
-  const portiere = giocatori.find(g => g.portiere);
+  const portieri = giocatori.filter(g => g.portiere);
   const giocatoriCampo = giocatori.filter(g => !g.portiere);
 
   const listaHTML = `
-    ${portiere ? `
+    ${portieri.map(p => `
       <div class="rosa-portiere">
-        <div class="rosa-player-name">🧤 ${portiere.nome}</div>
+        <div class="rosa-player-name">🧤 ${p.nome}</div>
         <div class="rosa-role-badge">PORTIERE</div>
-      </div>` : ''}
+      </div>`).join('')}
     <div class="rosa-campo">
       ${giocatoriCampo.map(g => `
         <div class="rosa-player">
