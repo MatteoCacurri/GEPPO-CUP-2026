@@ -70,6 +70,7 @@ html{background:linear-gradient(160deg,#091919 0%,#0d2222 30%,#112d2d 60%,#0d222
 .bk-team.tbd-t{color:#6b7585;font-style:italic}
 .bk-score{font-weight:800;font-size:.95rem;color:var(--acc);min-width:14px;text-align:right;flex-shrink:0}
 .bk-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);text-align:center;margin-bottom:4px;opacity:.8}
+.bk-date{font-size:.6rem;color:var(--muted);text-align:center;margin-bottom:3px;}
 
 /* Connettori CSS tra colonne */
 .bk-conn{display:flex;flex-direction:column;height:100%}
@@ -419,7 +420,7 @@ function parseFinale(rows) {
   rows.slice(1).forEach(r => {
     const fase = (r[0]||'').toLowerCase();
     const comp = (r[5]||'').toLowerCase();
-    const m = {s1:r[1]||'TBD',g1:r[2],s2:r[3]||'TBD',g2:r[4]};
+    const m = {s1:r[1]||'TBD',g1:r[2],s2:r[3]||'TBD',g2:r[4],data:r[6]||''};
     const key = comp.includes('argento') ? 'argento' : comp.includes('bronzo') ? 'bronzo' : 'mondiale';
     if (fase.includes('campio')) {
       out[key].campione = isExcludedTeam(r[1]) ? '' : (r[1]||'');
@@ -857,8 +858,10 @@ function renderFinale() {
     const w2 = played && +m.g2 > +m.g1;
     const c1 = isTbd1?'var(--muted)':fc(m.s1);
     const c2 = isTbd2?'var(--muted)':fc(m.s2);
+    const dataLbl = m.data ? `<div class="bk-date">📅 ${fmtDate(m.data)}</div>` : '';
     return `<div class="bk-match">
       ${labelText ? `<div class="bk-label">${labelText}</div>` : ''}
+      ${dataLbl}
       <div class="bk-team ${w1?'winner':''} ${isTbd1?'tbd-t':''}" style="${w1?`color:${c1}`:''}">
         <span>${isTbd1?'':flag(m.s1)} ${m.s1||'TBD'}</span>
         <span class="bk-score">${played?m.g1:''}</span>
