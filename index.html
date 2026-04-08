@@ -267,7 +267,73 @@ const DEMO_CLASSIFICA = DEMO_SQUADRE.map((s,i) => ({
   ...s, g:0, v:0, n:0, p:0, gf:0, gs:0, diff:'0', pts:0
 }));
 
-const DEMO_PARTITE = [];
+const DEMO_PARTITE = [
+  // ── GIORNATA 1 ── 3-4-5-8 giugno 2026
+  {giornata:1,data:'03/06/2026',casa:'MAROCCO',gol_casa:'',gol_trasf:'',trasferta:'ALGERIA',note:''},
+  {giornata:1,data:'03/06/2026',casa:'ITALIA',gol_casa:'',gol_trasf:'',trasferta:'QATAR',note:''},
+  {giornata:1,data:'03/06/2026',casa:"COSTA D'AVORIO",gol_casa:'',gol_trasf:'',trasferta:'COLOMBIA',note:''},
+  {giornata:1,data:'04/06/2026',casa:'ECUADOR',gol_casa:'',gol_trasf:'',trasferta:'GIAPPONE',note:''},
+  {giornata:1,data:'04/06/2026',casa:'BRASILE',gol_casa:'',gol_trasf:'',trasferta:'OLANDA',note:''},
+  {giornata:1,data:'04/06/2026',casa:'SPAGNA',gol_casa:'',gol_trasf:'',trasferta:'JAMAICA',note:''},
+  {giornata:1,data:'05/06/2026',casa:'USA',gol_casa:'',gol_trasf:'',trasferta:'SCOZIA',note:''},
+  {giornata:1,data:'05/06/2026',casa:'PORTOGALLO',gol_casa:'',gol_trasf:'',trasferta:'FRANCIA',note:''},
+  {giornata:1,data:'05/06/2026',casa:'ARGENTINA',gol_casa:'',gol_trasf:'',trasferta:'NUOVA ZELANDA',note:''},
+  {giornata:1,data:'08/06/2026',casa:'URUGUAY',gol_casa:'',gol_trasf:'',trasferta:'GERMANIA',note:''},
+  {giornata:1,data:'08/06/2026',casa:'SVIZZERA',gol_casa:'',gol_trasf:'',trasferta:'INGHILTERRA',note:''},
+  {giornata:1,data:'08/06/2026',casa:'MESSICO',gol_casa:'',gol_trasf:'',trasferta:'NORVEGIA',note:''},
+  // ── GIORNATA 2 ── 9-10-11-12 giugno 2026
+  {giornata:2,data:'09/06/2026',casa:'ITALIA',gol_casa:'',gol_trasf:'',trasferta:'FRANCIA',note:''},
+  {giornata:2,data:'09/06/2026',casa:'MAROCCO',gol_casa:'',gol_trasf:'',trasferta:'SCOZIA',note:''},
+  {giornata:2,data:'09/06/2026',casa:"COSTA D'AVORIO",gol_casa:'',gol_trasf:'',trasferta:'JAMAICA',note:''},
+  {giornata:2,data:'10/06/2026',casa:'ECUADOR',gol_casa:'',gol_trasf:'',trasferta:'OLANDA',note:''},
+  {giornata:2,data:'10/06/2026',casa:'COLOMBIA',gol_casa:'',gol_trasf:'',trasferta:'INGHILTERRA',note:''},
+  {giornata:2,data:'10/06/2026',casa:'GIAPPONE',gol_casa:'',gol_trasf:'',trasferta:'NORVEGIA',note:''},
+  {giornata:2,data:'11/06/2026',casa:'QATAR',gol_casa:'',gol_trasf:'',trasferta:'NUOVA ZELANDA',note:''},
+  {giornata:2,data:'11/06/2026',casa:'ALGERIA',gol_casa:'',gol_trasf:'',trasferta:'GERMANIA',note:''},
+  {giornata:2,data:'11/06/2026',casa:'BRASILE',gol_casa:'',gol_trasf:'',trasferta:'URUGUAY',note:''},
+  {giornata:2,data:'12/06/2026',casa:'SPAGNA',gol_casa:'',gol_trasf:'',trasferta:'MESSICO',note:''},
+  {giornata:2,data:'12/06/2026',casa:'USA',gol_casa:'',gol_trasf:'',trasferta:'ARGENTINA',note:''},
+  {giornata:2,data:'12/06/2026',casa:'PORTOGALLO',gol_casa:'',gol_trasf:'',trasferta:'SVIZZERA',note:''},
+  // ── GIORNATA 3 ── 15-16-17-18 giugno 2026
+  {giornata:3,data:'15/06/2026',casa:'ITALIA',gol_casa:'',gol_trasf:'',trasferta:'NORVEGIA',note:''},
+  {giornata:3,data:'15/06/2026',casa:'MAROCCO',gol_casa:'',gol_trasf:'',trasferta:'NUOVA ZELANDA',note:''},
+  {giornata:3,data:'15/06/2026',casa:"COSTA D'AVORIO",gol_casa:'',gol_trasf:'',trasferta:'GERMANIA',note:''},
+  {giornata:3,data:'16/06/2026',casa:'ECUADOR',gol_casa:'',gol_trasf:'',trasferta:'INGHILTERRA',note:''},
+  {giornata:3,data:'16/06/2026',casa:'JAMAICA',gol_casa:'',gol_trasf:'',trasferta:'SVIZZERA',note:''},
+  {giornata:3,data:'16/06/2026',casa:'FRANCIA',gol_casa:'',gol_trasf:'',trasferta:'ARGENTINA',note:''},
+  {giornata:3,data:'17/06/2026',casa:'OLANDA',gol_casa:'',gol_trasf:'',trasferta:'MESSICO',note:''},
+  {giornata:3,data:'17/06/2026',casa:'SCOZIA',gol_casa:'',gol_trasf:'',trasferta:'URUGUAY',note:''},
+  {giornata:3,data:'17/06/2026',casa:'COLOMBIA',gol_casa:'',gol_trasf:'',trasferta:'PORTOGALLO',note:''},
+  {giornata:3,data:'18/06/2026',casa:'GIAPPONE',gol_casa:'',gol_trasf:'',trasferta:'BRASILE',note:''},
+  {giornata:3,data:'18/06/2026',casa:'QATAR',gol_casa:'',gol_trasf:'',trasferta:'SPAGNA',note:''},
+  {giornata:3,data:'18/06/2026',casa:'ALGERIA',gol_casa:'',gol_trasf:'',trasferta:'USA',note:''},
+  // ── GIORNATA 4 ── 19-22-23-24 giugno 2026
+  {giornata:4,data:'19/06/2026',casa:'ITALIA',gol_casa:'',gol_trasf:'',trasferta:'ARGENTINA',note:''},
+  {giornata:4,data:'19/06/2026',casa:'MAROCCO',gol_casa:'',gol_trasf:'',trasferta:'MESSICO',note:''},
+  {giornata:4,data:'19/06/2026',casa:"COSTA D'AVORIO",gol_casa:'',gol_trasf:'',trasferta:'URUGUAY',note:''},
+  {giornata:4,data:'22/06/2026',casa:'ECUADOR',gol_casa:'',gol_trasf:'',trasferta:'SVIZZERA',note:''},
+  {giornata:4,data:'22/06/2026',casa:'GERMANIA',gol_casa:'',gol_trasf:'',trasferta:'USA',note:''},
+  {giornata:4,data:'22/06/2026',casa:'INGHILTERRA',gol_casa:'',gol_trasf:'',trasferta:'BRASILE',note:''},
+  {giornata:4,data:'23/06/2026',casa:'NORVEGIA',gol_casa:'',gol_trasf:'',trasferta:'PORTOGALLO',note:''},
+  {giornata:4,data:'23/06/2026',casa:'NUOVA ZELANDA',gol_casa:'',gol_trasf:'',trasferta:'SPAGNA',note:''},
+  {giornata:4,data:'23/06/2026',casa:'JAMAICA',gol_casa:'',gol_trasf:'',trasferta:'ALGERIA',note:''},
+  {giornata:4,data:'24/06/2026',casa:'FRANCIA',gol_casa:'',gol_trasf:'',trasferta:'QATAR',note:''},
+  {giornata:4,data:'24/06/2026',casa:'OLANDA',gol_casa:'',gol_trasf:'',trasferta:'COLOMBIA',note:''},
+  {giornata:4,data:'24/06/2026',casa:'SCOZIA',gol_casa:'',gol_trasf:'',trasferta:'GIAPPONE',note:''},
+  // ── GIORNATA 5 ── 25-26-29-30 giugno 2026
+  {giornata:5,data:'25/06/2026',casa:'ITALIA',gol_casa:'',gol_trasf:'',trasferta:'SPAGNA',note:''},
+  {giornata:5,data:'25/06/2026',casa:'MAROCCO',gol_casa:'',gol_trasf:'',trasferta:'PORTOGALLO',note:''},
+  {giornata:5,data:'25/06/2026',casa:"COSTA D'AVORIO",gol_casa:'',gol_trasf:'',trasferta:'BRASILE',note:''},
+  {giornata:5,data:'26/06/2026',casa:'ECUADOR',gol_casa:'',gol_trasf:'',trasferta:'USA',note:''},
+  {giornata:5,data:'26/06/2026',casa:'ARGENTINA',gol_casa:'',gol_trasf:'',trasferta:'COLOMBIA',note:''},
+  {giornata:5,data:'26/06/2026',casa:'URUGUAY',gol_casa:'',gol_trasf:'',trasferta:'GIAPPONE',note:''},
+  {giornata:5,data:'29/06/2026',casa:'SVIZZERA',gol_casa:'',gol_trasf:'',trasferta:'ALGERIA',note:''},
+  {giornata:5,data:'29/06/2026',casa:'MESSICO',gol_casa:'',gol_trasf:'',trasferta:'QATAR',note:''},
+  {giornata:5,data:'29/06/2026',casa:'GERMANIA',gol_casa:'',gol_trasf:'',trasferta:'SCOZIA',note:''},
+  {giornata:5,data:'30/06/2026',casa:'INGHILTERRA',gol_casa:'',gol_trasf:'',trasferta:'OLANDA',note:''},
+  {giornata:5,data:'30/06/2026',casa:'NORVEGIA',gol_casa:'',gol_trasf:'',trasferta:'JAMAICA',note:''},
+  {giornata:5,data:'30/06/2026',casa:'NUOVA ZELANDA',gol_casa:'',gol_trasf:'',trasferta:'FRANCIA',note:''},
+];
 
 const DEMO_MARCATORI = [];
 
