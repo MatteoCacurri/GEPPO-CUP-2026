@@ -440,7 +440,7 @@ async function loadFromSheet() {
     sheetFetch('Classifica!A:J'),
     sheetFetch('Risultati!A:H'),
     sheetFetch('Marcatori!A:D'),
-    sheetFetch('Fase Finale!A:F'),
+    sheetFetch('Fase Finale!A:G'),
   ]);
   const gRaw = await sheetFetch('Rose!A:D').catch(async () => {
     return await sheetFetch('Rosa!A:D').catch(() => []);
