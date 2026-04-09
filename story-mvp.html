@@ -285,7 +285,7 @@ function dateKey(p){return`${p.d}/${p.mo}/${p.y}`;}
 async function loadData(){
   try{
     const res=await fetch(`/api/sheet?range=${encodeURIComponent('Risultati!A:J')}`);
-    const rows=await res.json();
+    const rows=(await res.json()).values||[];
     // Col I=mvp_nome (idx 8), Col J=mvp_squadra (idx 9)
     allPartite=rows.slice(1).filter(r=>r[2]&&!isNaN(+r[0])).map(r=>({
       giornata:+r[0]||1, data:r[1]||'',

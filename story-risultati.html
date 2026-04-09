@@ -505,8 +505,8 @@ function dateKey(p) { return `${p.d}/${p.mo}/${p.y}`; }
 /* ── DATA LOAD ── */
 async function loadData() {
   try {
-    const res  = await fetch(`/api/sheet?range=${encodeURIComponent('Risultati!A:H')}`);
-    const rows = await res.json();
+    const res  = await fetch(`/api/sheet?range=${encodeURIComponent('Risultati!A:J')}`);
+    const rows = (await res.json()).values || [];
     allPartite = rows.slice(1)
       .filter(r => r[2] && !isNaN(+r[0]))
       .map(r => ({

@@ -373,7 +373,7 @@ function dateKey(p){return`${p.d}/${p.mo}/${p.y}`;}
 async function loadData(){
   try{
     const res=await fetch(`/api/sheet?range=${encodeURIComponent('Risultati!A:J')}`);
-    const rows=await res.json();
+    const rows=(await res.json()).values||[];
     allPartite=rows.slice(1).filter(r=>r[2]&&!isNaN(+r[0])).map(r=>({
       giornata:+r[0]||1,data:r[1]||'',
       casa:(r[2]||'').trim().toUpperCase(),
