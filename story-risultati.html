@@ -518,7 +518,7 @@ async function loadData() {
         trasferta: (r[6] || '').trim().toUpperCase()
       }));
     document.getElementById('statusBar').textContent =
-      `${allPartite.length} partite caricate · seleziona giornata`;
+      `${allPartite.length} partite caricate · seleziona giorno`;
     buildSelector();
     autoSelect();
   } catch (e) {
@@ -543,15 +543,20 @@ function loadDemo() {
 /* ── SELECTOR ── */
 function buildSelector() {
   const sel = document.getElementById('giornataSel');
-  const map = {};
-  allPartite.forEach(p => { if (!map[p.giornata]) map[p.giornata] = p.data; });
+  // Raccogli date uniche con risultati, ordinate
+  const dates = [...new Set(allPartite.filter(hasResult).map(p => p.data))]
+    .sort((a,b) => toISO(a).localeCompare(toISO(b)));
 
-  sel.innerHTML = Object.entries(map)
-    .sort((a,b) => +a[0] - +b[0])
-    .map(([g, d]) => `<option value="${g}">G${g} — ${formatDate(d)}</option>`)
+  sel.innerHTML = dates
+    .map(d => `<option value="${d}">${formatDate(d)}</option>`)
     .join('');
 
-  sel.onchange = () => render(+sel.value);
+  sel.onchange = () => renderByDate(sel.value);
+}
+
+function toISO(d) {
+  const p = parseDate(d); if (!p) return d;
+  return `${p.y}-${String(p.mo).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`;
 }
 
 function autoSelect() {
@@ -562,17 +567,17 @@ function autoSelect() {
   });
 
   if (todayHit) {
-    document.getElementById('giornataSel').value = todayHit.giornata;
-    render(todayHit.giornata);
+    document.getElementById('giornataSel').value = todayHit.data;
+    renderByDate(todayHit.data);
     return;
   }
 
-  // fallback: last giornata with results
+  // fallback: ultimo giorno con risultati
   const withR = allPartite.filter(hasResult);
   if (withR.length) {
-    const lastG = Math.max(...withR.map(p => p.giornata));
-    document.getElementById('giornataSel').value = lastG;
-    render(lastG);
+    const lastDate = withR.sort((a,b) => toISO(b.data).localeCompare(toISO(a.data)))[0].data;
+    document.getElementById('giornataSel').value = lastDate;
+    renderByDate(lastDate);
   }
 }
 
@@ -581,11 +586,12 @@ function hasResult(p) {
 }
 
 /* ── RENDER ── */
-function render(gNum) {
-  const partite = allPartite.filter(p => p.giornata === gNum && hasResult(p));
-  const firstP  = allPartite.find(p => p.giornata === gNum);
+function renderByDate(dataStr) {
+  const partite = allPartite.filter(p => p.data === dataStr && hasResult(p));
+  const firstP  = allPartite.find(p => p.data === dataStr);
+  const gNum    = firstP?.giornata || '—';
 
-  document.getElementById('storyDate').textContent = formatDate(firstP?.data || '');
+  document.getElementById('storyDate').textContent = formatDate(dataStr);
   document.getElementById('storyG').textContent    = `G${gNum}`;
 
   const container = document.getElementById('storyMatches');

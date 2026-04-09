@@ -396,30 +396,29 @@ function loadDemo(){
   ];
   buildSelector();autoSelect();
 }
+function toISO(d){const p=parseDate(d);if(!p)return d;return`${p.y}-${String(p.mo).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`;}
 function buildSelector(){
   const sel=document.getElementById('giornataSel');
-  const map={};
-  allPartite.forEach(p=>{if(!map[p.giornata])map[p.giornata]=p.data;});
-  sel.innerHTML=Object.entries(map).sort((a,b)=>+a[0]-+b[0])
-    .map(([g,d])=>`<option value="${g}">G${g} — ${formatDate(d)}</option>`).join('');
-  sel.onchange=()=>render(+sel.value);
+  const dates=[...new Set(allPartite.map(p=>p.data))].sort((a,b)=>toISO(a).localeCompare(toISO(b)));
+  sel.innerHTML=dates.map(d=>`<option value="${d}">${formatDate(d)}</option>`).join('');
+  sel.onchange=()=>renderByDate(sel.value);
 }
 function autoSelect(){
   const today=todayKey();
   const hit=allPartite.find(p=>{const pd=parseDate(p.data);return pd&&dateKey(pd)===today;});
-  if(hit){document.getElementById('giornataSel').value=hit.giornata;render(hit.giornata);return;}
-  // fallback: prossima giornata senza risultati
+  if(hit){document.getElementById('giornataSel').value=hit.data;renderByDate(hit.data);return;}
+  // fallback: prossimo giorno senza risultati
   const senza=allPartite.filter(p=>p.gol_casa===''||p.gol_casa===undefined||p.gol_casa===null);
   if(senza.length){
-    const nextG=Math.min(...senza.map(p=>p.giornata));
-    document.getElementById('giornataSel').value=nextG;render(nextG);
+    const nextDate=senza.sort((a,b)=>toISO(a.data).localeCompare(toISO(b.data)))[0].data;
+    document.getElementById('giornataSel').value=nextDate;renderByDate(nextDate);
   }
 }
-function render(gNum){
-  const partite=allPartite.filter(p=>p.giornata===gNum);
+function renderByDate(dataStr){
+  const partite=allPartite.filter(p=>p.data===dataStr);
   const first=partite[0];
-  document.getElementById('storyDate').textContent=formatDate(first?.data||'');
-  document.getElementById('storyG').textContent=`G${gNum}`;
+  document.getElementById('storyDate').textContent=formatDate(dataStr);
+  document.getElementById('storyG').textContent=`G${first?.giornata||'—'}`;
   const c=document.getElementById('storyMatches');
   if(!partite.length){c.innerHTML='<div class="s-empty"><div class="s-empty-icon">📅</div>Nessuna partita</div>';return;}
   c.innerHTML=partite.map(p=>`

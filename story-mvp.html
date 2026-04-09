@@ -312,24 +312,23 @@ function loadDemo(){
   buildSelector();autoSelect();
 }
 
+function toISO(d){const p=parseDate(d);if(!p)return d;return`${p.y}-${String(p.mo).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`;}
 function buildSelector(){
   const sel=document.getElementById('giornataSel');
-  const map={};
-  allPartite.forEach(p=>{if(!map[p.giornata])map[p.giornata]=p.data;});
-  sel.innerHTML=Object.entries(map).sort((a,b)=>+a[0]-+b[0])
-    .map(([g,d])=>`<option value="${g}">G${g} — ${formatDate(d)}</option>`).join('');
-  sel.onchange=()=>render(+sel.value);
+  const dates=[...new Set(allPartite.filter(p=>p.mvp_nome).map(p=>p.data))].sort((a,b)=>toISO(a).localeCompare(toISO(b)));
+  sel.innerHTML=dates.map(d=>`<option value="${d}">${formatDate(d)}</option>`).join('');
+  sel.onchange=()=>renderByDate(sel.value);
 }
 
 function autoSelect(){
   const today=todayKey();
   const hit=allPartite.find(p=>{const pd=parseDate(p.data);return pd&&dateKey(pd)===today&&p.mvp_nome;});
-  if(hit){document.getElementById('giornataSel').value=hit.giornata;render(hit.giornata);return;}
-  // fallback: ultima giornata con mvp compilati
+  if(hit){document.getElementById('giornataSel').value=hit.data;renderByDate(hit.data);return;}
+  // fallback: ultimo giorno con mvp compilati
   const conMvp=allPartite.filter(p=>p.mvp_nome);
   if(conMvp.length){
-    const lastG=Math.max(...conMvp.map(p=>p.giornata));
-    document.getElementById('giornataSel').value=lastG;render(lastG);
+    const lastDate=conMvp.sort((a,b)=>toISO(b.data).localeCompare(toISO(a.data)))[0].data;
+    document.getElementById('giornataSel').value=lastDate;renderByDate(lastDate);
   }
 }
 
@@ -338,11 +337,11 @@ function getFlag(squadra){
   return FLAGS[squadra]||'🏳';
 }
 
-function render(gNum){
-  const partite=allPartite.filter(p=>p.giornata===gNum&&p.mvp_nome);
-  const first=allPartite.find(p=>p.giornata===gNum);
-  document.getElementById('storyDate').textContent=formatDate(first?.data||'');
-  document.getElementById('storyG').textContent=`G${gNum}`;
+function renderByDate(dataStr){
+  const partite=allPartite.filter(p=>p.data===dataStr&&p.mvp_nome);
+  const first=allPartite.find(p=>p.data===dataStr);
+  document.getElementById('storyDate').textContent=formatDate(dataStr);
+  document.getElementById('storyG').textContent=`G${first?.giornata||'—'}`;
 
   const c=document.getElementById('storyMvps');
   if(!partite.length){
