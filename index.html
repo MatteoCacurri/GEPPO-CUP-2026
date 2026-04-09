@@ -659,7 +659,7 @@ function renderPartite() {
         const mvpSq = m.mvp_squadra || '';
         const mvpFlag = mvpSq ? flag(mvpSq) : '';
         const mvpRow = (played && m.mvp_nome)
-          ? `<span>⭐ MVP — ${m.mvp_nome}${mvpFlag ? ' ' + mvpFlag : ''}${mvpSq ? ' ' + mvpSq : ''}</span>`
+          ? `<span class="m-mvp">⭐ MVP — ${m.mvp_nome}${mvpFlag ? ' ' + mvpFlag : ''}</span>`
           : '';
         const detail = (m.note || mvpRow)
           ? `<div class="m-meta">${m.note ? `<span>🕐 ${m.note}</span>` : ''}${mvpRow}</div>`
