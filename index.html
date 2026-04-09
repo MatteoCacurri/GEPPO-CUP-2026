@@ -89,6 +89,18 @@ html{background:linear-gradient(160deg,#091919 0%,#0d2222 30%,#112d2d 60%,#0d222
 .bk-terzo{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(42,90,90,.3)}
 .bk-terzo-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:.5rem}
 </style>
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q2T85MM9KD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Q2T85MM9KD', { send_page_view: false });
+  window.addEventListener('load', () => {
+    gtag('event', 'page_view', { page_title: 'home', page_location: location.href + '#home' });
+  });
+</script>
 </head>
 <body>
 
@@ -998,6 +1010,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById(tab.dataset.tab).classList.add('active');
+    gtag('event', 'page_view', { page_title: tab.dataset.tab, page_location: location.href + '#' + tab.dataset.tab });
   });
 });
 
@@ -1022,6 +1035,8 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.warn('[GeppoCup] SW fallito:', err));
   });
 }
+window.addEventListener('beforeinstallprompt', () => { gtag('event', 'pwa_install_prompt'); });
+window.addEventListener('appinstalled', () => { gtag('event', 'pwa_installed'); });
 </script>
 </body>
 </html>
