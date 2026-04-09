@@ -397,7 +397,8 @@ function parsePartite(rows) {
   // Separator rows (⚡ GIORNATA...) have only 1 cell, filtered by r[2]
   return rows.slice(1).filter(r=>r[2] && !isNaN(+r[0]) && !hasExcludedTeam(r[2], r[6])).map(r => ({
     giornata:+r[0]||1, data:r[1]||'', casa:r[2]||'',
-    gol_casa:r[3], gol_trasf:r[5], trasferta:r[6]||'', note:r[7]||''
+    gol_casa:r[3], gol_trasf:r[5], trasferta:r[6]||'', note:r[7]||'',
+    mvp_nome:(r[8]||'').trim(), mvp_squadra:(r[9]||'').trim().toUpperCase()
   }));
 }
 
@@ -655,7 +656,14 @@ function renderPartite() {
         const scoreTxt = played ? `${m.gol_casa} - ${m.gol_trasf}` : 'vs';
         const scoreCls = played ? '' : 'tbd';
         const colorC = fc(m.casa), colorT = fc(m.trasferta);
-        const detail = m.note ? `<div class="m-meta"><span>🕐 ${m.note}</span></div>` : '';
+        const mvpSq = m.mvp_squadra || '';
+        const mvpFlag = mvpSq ? flag(mvpSq) : '';
+        const mvpRow = (played && m.mvp_nome)
+          ? `<span>⭐ MVP — ${m.mvp_nome}${mvpFlag ? ' ' + mvpFlag : ''}${mvpSq ? ' ' + mvpSq : ''}</span>`
+          : '';
+        const detail = (m.note || mvpRow)
+          ? `<div class="m-meta">${m.note ? `<span>🕐 ${m.note}</span>` : ''}${mvpRow}</div>`
+          : '';
         return `<div class="match-card">
           <div class="match-row">
             <div class="m-team-l"><span>${m.casa}</span><span>${flag(m.casa)}</span></div>
