@@ -2,7 +2,7 @@
 // GEPPO WORLD CUP 2026 — Service Worker
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'geppo-cup-v4';
+const CACHE_NAME = 'geppo-cup-v5';
 
 // Asset statici da cachare (NO index.html — sempre aggiornato dalla rete)
 const STATIC_ASSETS = [

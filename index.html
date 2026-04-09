@@ -545,8 +545,8 @@ function renderHeroStats() {
   ).length;
   const goals = matches.reduce((sum,m) => sum + (+m.gol_casa||0) + (+m.gol_trasf||0), 0);
 
-  const leader = [...(DATA?.classifica || [])]
-    .sort((a,b) => b.pts-a.pts || b.gf-a.gf || a.gs-b.gs)[0]?.nome || 'TBD';
+  const classifica = [...(DATA?.classifica || [])].sort((a,b) => b.pts-a.pts || b.gf-a.gf || a.gs-b.gs);
+  const leader = (classifica[0]?.pts > 0) ? classifica[0].nome : 'MAROCCO';
 
   setTxt('hero-teams', teamsCount);
   setTxt('hero-played', `${played}/${matches.length}`);
