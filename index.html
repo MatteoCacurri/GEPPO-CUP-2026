@@ -22,6 +22,21 @@
 .sq-clickable:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
 .rosa-hint{font-size:.65rem;font-family:'Barlow Condensed',sans-serif;color:#6b7585;font-weight:400;margin-left:.4rem;vertical-align:middle}
 
+/* ── MATCH CARD CLICCABILE ── */
+.mc-clickable{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.mc-clickable:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.mc-tap-hint{font-size:.65rem;font-family:'Barlow Condensed',sans-serif;color:#4a8a6b;font-weight:600;letter-spacing:.06em;text-align:center;padding:.2rem 0 0;text-transform:uppercase}
+
+/* ── MODAL MARCATORI PARTITA ── */
+.ms-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:0;padding:.4rem 0}
+.ms-col{padding:.4rem .6rem}
+.ms-divider{background:#2a3340}
+.ms-team-hdr{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem}
+.ms-row{display:flex;align-items:center;justify-content:space-between;padding:.35rem .5rem;background:#181c22;border-radius:7px;margin-bottom:.3rem}
+.ms-name{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:600;color:#e2e8f0}
+.ms-gol{font-size:.85rem;letter-spacing:.05em}
+.ms-empty{font-size:.8rem;color:var(--muted);text-align:center;padding:.6rem 0}
+
 .rosa-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);z-index:9999;display:flex;align-items:flex-end;justify-content:center;animation:rmFadeIn .2s ease}
 @keyframes rmFadeIn{from{opacity:0}to{opacity:1}}
 
@@ -350,6 +365,8 @@ const DEMO_PARTITE = [
 
 const DEMO_MARCATORI = [];
 
+const DEMO_GOL_PARTITE = [];
+
 const DEMO_GIOCATORI = [];
 
 const DEMO_FINALE = {
@@ -424,6 +441,28 @@ function parseMarcatori(rows) {
   })).sort((a,b)=>b.gol-a.gol);
 }
 
+function parseGolPartite(rows) {
+  // Sheet: GG | CASA | TRASFERTA | GIOCATORE | SQUADRA | GOL
+  return rows.slice(1).filter(r => r[3] && r[3].trim()).map(r => ({
+    giornata: +r[0] || 0,
+    casa: (r[1] || '').trim().toUpperCase(),
+    trasferta: (r[2] || '').trim().toUpperCase(),
+    giocatore: (r[3] || '').trim(),
+    squadra: (r[4] || '').trim().toUpperCase(),
+    gol: +r[5] || 1
+  }));
+}
+
+function aggregaMarcatori(golPartite) {
+  const map = {};
+  golPartite.forEach(g => {
+    const key = g.giocatore + '|' + g.squadra;
+    if (!map[key]) map[key] = { nome: g.giocatore, squadra: g.squadra, gol: 0 };
+    map[key].gol += g.gol;
+  });
+  return Object.values(map).filter(m => m.gol > 0).sort((a,b) => b.gol - a.gol);
+}
+
 function parseFinale(rows) {
   const out = {
     mondiale:{campione:'',quarti:[],semi:[],terzo:[],finale:[]},
@@ -458,10 +497,16 @@ async function loadFromSheet() {
   const gRaw = await sheetFetch('Rose!A:D').catch(async () => {
     return await sheetFetch('Rosa!A:D').catch(() => []);
   });
+  const gpRaw = await sheetFetch('GolPartite!A:F').catch(() => []);
+
   const classifica = parseClassifica(clRaw);
   const squadre = classifica.map(s => ({nome:s.nome, fascia:s.fascia}));
   const giocatori = parseGiocatori(gRaw);
-  const marcatori = giocatori.filter(g => g.gol > 0).sort((a,b) => b.gol - a.gol);
+  const golPartite = parseGolPartite(gpRaw);
+  const marcatori = golPartite.length > 0
+    ? aggregaMarcatori(golPartite)
+    : giocatori.filter(g => g.gol > 0).sort((a,b) => b.gol - a.gol);
+
   return {
     classifica,
     squadre,
@@ -469,6 +514,7 @@ async function loadFromSheet() {
     marcatori,
     finale: parseFinale(fRaw),
     giocatori,
+    golPartite,
   };
 }
 
@@ -492,7 +538,7 @@ function lsSave(data) {
 async function loadData() {
   isDemo = CFG.sheetId === 'TUO_SHEET_ID_QUI';
   if (isDemo) {
-    DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
+    DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI, golPartite:DEMO_GOL_PARTITE };
   } else {
     const cached = lsLoad();
     if (cached) {
@@ -504,7 +550,7 @@ async function loadData() {
       lsSave(DATA);
     } catch(e) {
       if (!cached) {
-        DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI };
+        DATA = { classifica:DEMO_CLASSIFICA, squadre:DEMO_SQUADRE, partite:DEMO_PARTITE, marcatori:DEMO_MARCATORI, finale:DEMO_FINALE, giocatori:DEMO_GIOCATORI, golPartite:DEMO_GOL_PARTITE };
         isDemo = true;
       }
     }
@@ -664,12 +710,18 @@ function renderPartite() {
         const detail = (m.note || mvpRow)
           ? `<div class="m-meta">${m.note ? `<span>🕐 ${m.note}</span>` : ''}${mvpRow}</div>`
           : '';
-        return `<div class="match-card">
+        const hasScorers = played && (DATA.golPartite||[]).some(
+          g => g.giornata===m.giornata && g.casa===m.casa && g.trasferta===m.trasferta
+        );
+        const clickAttr = hasScorers
+          ? `data-gg="${m.giornata}" data-casa="${m.casa}" data-trasf="${m.trasferta}"`
+          : '';
+        return `<div class="match-card${hasScorers?' mc-clickable':''}" ${clickAttr}>
           <div class="match-row">
             <div class="m-team-l"><span>${m.casa}</span><span>${flag(m.casa)}</span></div>
             <div class="m-score ${scoreCls}">${scoreTxt}</div>
             <div class="m-team-r"><span>${flag(m.trasferta)}</span><span>${m.trasferta}</span></div>
-          </div>${detail}
+          </div>${detail}${hasScorers ? '<div class="mc-tap-hint">⚽ Tocca per i marcatori</div>' : ''}
         </div>`;
       }).join('');
       return `<div class="date-grp">
@@ -684,6 +736,12 @@ function renderPartite() {
   }).join('');
 
   document.getElementById('p-content').innerHTML = html || '<p style="color:var(--muted);text-align:center;padding:2rem">Nessuna partita trovata</p>';
+
+  document.querySelectorAll('.mc-clickable').forEach(card => {
+    card.addEventListener('click', () => {
+      showMatchScorers(+card.dataset.gg, card.dataset.casa, card.dataset.trasf);
+    });
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -824,6 +882,62 @@ function showRosa(teamName) {
       <div class="rosa-modal-body">
         <div class="rosa-count">${giocatori.length} giocatori in rosa</div>
         ${listaHTML}
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL MARCATORI PARTITA
+// ═══════════════════════════════════════════════════════════
+function showMatchScorers(gg, casa, trasf) {
+  const scorers = (DATA.golPartite||[]).filter(
+    g => g.giornata===gg && g.casa===casa && g.trasferta===trasf
+  );
+  if (!scorers.length) return;
+
+  const casaScorers  = scorers.filter(g => g.squadra===casa);
+  const trasfScorers = scorers.filter(g => g.squadra===trasf);
+  const colorC = fc(casa), colorT = fc(trasf);
+
+  function scorerList(list, color) {
+    if (!list.length) return `<div class="ms-empty">Nessun gol</div>`;
+    return list.map(g => `
+      <div class="ms-row">
+        <span class="ms-name">${g.nome}</span>
+        <span class="ms-gol" style="color:${color}">${'⚽'.repeat(g.gol)}</span>
+      </div>`).join('');
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'rosa-modal-overlay';
+  modal.innerHTML = `
+    <div class="rosa-modal">
+      <div class="rosa-modal-hdr" style="border-bottom:1px solid #2a3340">
+        <div class="rosa-modal-title" style="font-size:1rem;gap:.4rem">
+          <span>${flag(casa)}</span>
+          <span style="color:${colorC}">${casa}</span>
+          <span style="color:var(--muted);font-size:.85rem;font-weight:400">vs</span>
+          <span style="color:${colorT}">${trasf}</span>
+          <span>${flag(trasf)}</span>
+        </div>
+        <button class="rosa-close" onclick="this.closest('.rosa-modal-overlay').remove()">✕</button>
+      </div>
+      <div class="rosa-modal-body">
+        <div class="ms-grid">
+          <div class="ms-col">
+            <div class="ms-team-hdr" style="color:${colorC}">${flag(casa)} ${casa}</div>
+            ${scorerList(casaScorers, colorC)}
+          </div>
+          <div class="ms-divider"></div>
+          <div class="ms-col">
+            <div class="ms-team-hdr" style="color:${colorT}">${flag(trasf)} ${trasf}</div>
+            ${scorerList(trasfScorers, colorT)}
+          </div>
+        </div>
       </div>
     </div>
   `;
