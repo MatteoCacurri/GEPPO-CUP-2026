@@ -907,7 +907,7 @@ function showMatchScorers(gg, casa, trasf) {
     if (!list.length) return `<div class="ms-empty">Nessun gol</div>`;
     return list.map(g => `
       <div class="ms-row">
-        <span class="ms-name">${g.nome}</span>
+        <span class="ms-name">${g.giocatore}</span>
         <span class="ms-gol" style="color:${color}">${'⚽'.repeat(g.gol)}</span>
       </div>`).join('');
   }
