@@ -404,7 +404,7 @@ function parseClassifica(rows) {
     return {
       nome: r[1], fascia: +r[2]||1,
       g:+r[3]||0, v, n, p:+r[6]||0,
-      gf:+r[7]||0, gs:+r[8]||0, diff:r[9]||'0', pts: v*3 + n
+      gf:+r[7]||0, gs:+r[8]||0, diff:+r[9]||0, pts: v*3 + n
     };
   });
 }
@@ -604,7 +604,9 @@ function renderHeroStats() {
   ).length;
   const goals = matches.reduce((sum,m) => sum + (+m.gol_casa||0) + (+m.gol_trasf||0), 0);
 
-  const classifica = [...(DATA?.classifica || [])].sort((a,b) => b.pts-a.pts || b.gf-a.gf || a.gs-b.gs);
+  const classifica = [...(DATA?.classifica || [])].sort((a,b) =>
+    b.pts-a.pts || b.diff-a.diff || b.gf-a.gf || a.gs-b.gs
+  );
   const leader = (classifica[0]?.pts > 0) ? classifica[0].nome : 'MAROCCO';
 
   setTxt('hero-teams', teamsCount);
@@ -617,7 +619,9 @@ function renderHeroStats() {
 // RENDER CLASSIFICA
 // ═══════════════════════════════════════════════════════════
 function renderClassifica() {
-  const sorted = [...DATA.classifica].sort((a,b) => b.pts-a.pts || b.gf-a.gf || a.gs-b.gs);
+  const sorted = [...DATA.classifica].sort((a,b) =>
+    b.pts-a.pts || b.diff-a.diff || b.gf-a.gf || a.gs-b.gs
+  );
   const el = document.getElementById('cl-content');
 
   let rows = '';
