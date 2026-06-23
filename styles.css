@@ -639,6 +639,44 @@ nav{
     padding:1rem .85rem 5rem;
     border-radius:14px;
   }
+  .cl-wrap{overflow-x:hidden}
+  .cl-table{min-width:0;table-layout:fixed}
+  .cl-table th,
+  .cl-table td{
+    padding:7px 1px;
+    font-size:.7rem;
+  }
+  .cl-table th{
+    letter-spacing:0;
+  }
+  .cl-table th:first-child{
+    width:38%;
+    padding-left:2px;
+  }
+  .cl-table td:first-child{
+    min-width:0;
+  }
+  .team-cell{
+    min-width:0;
+    gap:3px;
+  }
+  .team-cell > div:last-child{
+    min-width:0;
+  }
+  .pos-b{
+    width:20px;
+    height:20px;
+    font-size:.72rem;
+  }
+  .flag{font-size:.85rem}
+  .tname{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:.72rem;
+    letter-spacing:0;
+  }
+  .pts-num{font-size:.9rem}
 }
 
 /* ── RESPONSIVE ── */
@@ -773,4 +811,3 @@ nav{
   font-weight:600;
   color:var(--text);
 }
-
