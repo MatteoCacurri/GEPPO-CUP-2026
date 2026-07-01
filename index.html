@@ -733,8 +733,9 @@ function renderPartite() {
         ${ms}
       </div>`;
     }).join('');
+    const ggLabel = gg===6?'⚽ QUARTI DI FINALE':gg===7?'⚽ SEMIFINALI':gg===8?'🏆 FINALE':gg===9?'🥉 FINALE 3° POSTO':`GIORNATA ${gg}`;
     return `<div class="gg-section">
-      <div class="gg-divider">GIORNATA ${gg}</div>
+      <div class="gg-divider">${ggLabel}</div>
       ${daysHtml}
     </div>`;
   }).join('');
@@ -955,9 +956,9 @@ function showMatchScorers(gg, casa, trasf) {
 // ═══════════════════════════════════════════════════════════
 function renderFinale() {
   const COMPS = [
-    {key:'mondiale', label:'🌍 Mondiale', cls:'mondiale', icon:'🏆', trophyColor:'var(--acc)'},
-    {key:'argento',  label:'🥈 Coppa d\'Argento', cls:'argento', icon:'🥈', trophyColor:'var(--silver)'},
-    {key:'bronzo',   label:'🥉 Coppa di Bronzo', cls:'bronzo', icon:'🥉', trophyColor:'var(--bronze)'},
+    {key:'mondiale', label:'🏆 GOLD', cls:'mondiale', icon:'🏆', trophyColor:'var(--acc)'},
+    {key:'argento',  label:'🥈 SILVER', cls:'argento', icon:'🥈', trophyColor:'var(--silver)'},
+    {key:'bronzo',   label:'🥉 BRONZE', cls:'bronzo', icon:'🥉', trophyColor:'var(--bronze)'},
   ];
 
   const pills = document.getElementById('f-filter');
