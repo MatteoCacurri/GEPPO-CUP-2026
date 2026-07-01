@@ -500,7 +500,8 @@ function finaleToParte(finale) {
           giornata: gg, data: m.data||'', casa: m.s1,
           gol_casa:  (m.g1!==''&&m.g1!=null&&m.g1!==undefined) ? m.g1 : undefined,
           gol_trasf: (m.g2!==''&&m.g2!=null&&m.g2!==undefined) ? m.g2 : undefined,
-          trasferta: m.s2, note:'', mvp_nome:'', mvp_squadra:''
+          trasferta: m.s2, cup: {mondiale:'GOLD',argento:'SILVER',bronzo:'BRONZE'}[cup],
+          note:'', mvp_nome:'', mvp_squadra:''
         });
       });
     });
@@ -743,7 +744,9 @@ function renderPartite() {
         const clickAttr = hasScorers
           ? `data-gg="${m.giornata}" data-casa="${m.casa}" data-trasf="${m.trasferta}"`
           : '';
-        return `<div class="match-card${hasScorers?' mc-clickable':''}" ${clickAttr}>
+        const cupIcons = {GOLD:'🏆',SILVER:'🥈',BRONZE:'🥉'};
+        const cupBadge = m.cup ? `<div class="cup-stripe cs-${m.cup.toLowerCase()}">${cupIcons[m.cup]} ${m.cup}</div>` : '';
+        return `<div class="match-card${hasScorers?' mc-clickable':''}" ${clickAttr}>${cupBadge}
           <div class="match-row">
             <div class="m-team-l"><span>${m.casa}</span><span>${flag(m.casa)}</span></div>
             <div class="m-score ${scoreCls}">${scoreTxt}</div>
