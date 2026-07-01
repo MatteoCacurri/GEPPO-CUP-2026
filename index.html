@@ -734,7 +734,7 @@ function renderPartite() {
         ${ms}
       </div>`;
     }).join('');
-    const ggLabel = gg===6?'⚽ QUARTI DI FINALE':gg===7?'⚽ SEMIFINALI':gg===8?'🏆 FINALE':gg===9?'🥉 FINALE 3° POSTO':`GIORNATA ${gg}`;
+    const ggLabel = gg===6?'⚽ QUARTI DI FINALE':gg===7?'⚽ SEMIFINALI':gg===8?'🏆 FINALE':`GIORNATA ${gg}`;
     return `<div class="gg-section">
       <div class="gg-divider">${ggLabel}</div>
       ${daysHtml}
