@@ -677,9 +677,10 @@ function renderPartite() {
   const teams = [...new Set(DATA.partite.flatMap(m=>[m.casa,m.trasferta]))].sort();
   const ggg   = [...new Set(DATA.partite.map(m=>'G'+m.giornata))].sort();
   const opts  = ['tutti', ...ggg, ...teams];
+  const ggLabels = {'G6':'QF','G7':'SF','G8':'Finale'};
   const pills = document.getElementById('p-filter');
   pills.innerHTML = opts.map(o =>
-    `<div class="pill ${o===filterP?'active':''}" data-val="${o}">${o==='tutti'?'Tutte':o}</div>`
+    `<div class="pill ${o===filterP?'active':''}" data-val="${o}">${o==='tutti'?'Tutte':ggLabels[o]||o}</div>`
   ).join('');
   pills.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
     filterP = p.dataset.val; renderPartite();
