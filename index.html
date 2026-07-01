@@ -744,9 +744,9 @@ function renderPartite() {
         const clickAttr = hasScorers
           ? `data-gg="${m.giornata}" data-casa="${m.casa}" data-trasf="${m.trasferta}"`
           : '';
-        const cupIcons = {GOLD:'🏆',SILVER:'🥈',BRONZE:'🥉'};
-        const cupBadge = m.cup ? `<div class="cup-stripe cs-${m.cup.toLowerCase()}">${cupIcons[m.cup]} ${m.cup}</div>` : '';
-        return `<div class="match-card${hasScorers?' mc-clickable':''}" ${clickAttr}>${cupBadge}
+        const cupBadge = m.cup ? `<div class="cup-stripe cs-${m.cup.toLowerCase()}">${m.cup}</div>` : '';
+        const cupCls = m.cup ? ` mc-${m.cup.toLowerCase()}` : '';
+        return `<div class="match-card${hasScorers?' mc-clickable':''}${cupCls}" ${clickAttr}>${cupBadge}
           <div class="match-row">
             <div class="m-team-l"><span>${m.casa}</span><span>${flag(m.casa)}</span></div>
             <div class="m-score ${scoreCls}">${scoreTxt}</div>

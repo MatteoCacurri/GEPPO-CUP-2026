@@ -124,9 +124,12 @@ nav::-webkit-scrollbar{display:none}
 .cup-stripe{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:800;
   letter-spacing:.18em;text-align:center;padding:3px 10px;
   margin:-0.9rem -1rem .7rem -1rem}
-.cup-stripe.cs-gold{background:var(--acc);color:#0a0c10}
-.cup-stripe.cs-silver{background:var(--silver);color:#0a0c10}
-.cup-stripe.cs-bronze{background:var(--bronze);color:#fff}
+.cup-stripe.cs-gold{background:linear-gradient(90deg,#b8a800,#e8ff00,#ffd700,#b8a800);color:#0a0c10}
+.cup-stripe.cs-silver{background:linear-gradient(90deg,#888,#d8d8d8,#fff,#d8d8d8,#888);color:#0a0c10}
+.cup-stripe.cs-bronze{background:linear-gradient(90deg,#7a3e10,#cd7f32,#e8a060,#cd7f32,#7a3e10);color:#fff}
+.match-card.mc-gold{border-color:rgba(232,255,0,.4);background:linear-gradient(175deg,rgba(232,255,0,.08) 0%,var(--bg2) 38%)}
+.match-card.mc-silver{border-color:rgba(200,200,200,.4);background:linear-gradient(175deg,rgba(200,200,200,.08) 0%,var(--bg2) 38%)}
+.match-card.mc-bronze{border-color:rgba(205,127,50,.45);background:linear-gradient(175deg,rgba(205,127,50,.09) 0%,var(--bg2) 38%)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .match-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
 .m-team-l{text-align:right;font-family:'Barlow Condensed',sans-serif;
