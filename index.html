@@ -456,11 +456,13 @@ function parseGolPartite(rows) {
 
 function aggregaMarcatori(golPartite) {
   const map = {};
-  golPartite.forEach(g => {
-    const key = g.giocatore + '|' + g.squadra;
-    if (!map[key]) map[key] = { nome: g.giocatore, squadra: g.squadra, gol: 0 };
-    map[key].gol += g.gol;
-  });
+  golPartite
+    .filter(g => g.cup !== 'SILVER' && g.cup !== 'BRONZE')
+    .forEach(g => {
+      const key = g.giocatore + '|' + g.squadra;
+      if (!map[key]) map[key] = { nome: g.giocatore, squadra: g.squadra, gol: 0 };
+      map[key].gol += g.gol;
+    });
   return Object.values(map).filter(m => m.gol > 0).sort((a,b) => b.gol - a.gol);
 }
 
@@ -524,12 +526,34 @@ async function loadFromSheet() {
   const classifica = parseClassifica(clRaw);
   const squadre = classifica.map(s => ({nome:s.nome, fascia:s.fascia}));
   const giocatori = parseGiocatori(gRaw);
-  const golPartite = parseGolPartite(gpRaw);
+  const finale = parseFinale(fRaw);
+
+  // Build lookup: "gg|casa|trasferta" → cup (GOLD/SILVER/BRONZE) for knockout matches
+  const knockoutCupMap = {};
+  const cupKeys = {mondiale:'GOLD', argento:'SILVER', bronzo:'BRONZE'};
+  const phaseGG = {quarti:6, semi:7, finale:8};
+  ['mondiale','argento','bronzo'].forEach(cup => {
+    Object.entries(phaseGG).forEach(([phase, gg]) => {
+      (finale[cup][phase]||[]).forEach(m => {
+        if (m.s1 && m.s1 !== 'TBD' && m.s2 && m.s2 !== 'TBD') {
+          knockoutCupMap[`${gg}|${m.s1}|${m.s2}`] = cupKeys[cup];
+        }
+      });
+    });
+  });
+
+  // Tag each GolPartite entry with cup for knockout rounds; group stage entries get null
+  const golPartite = parseGolPartite(gpRaw).map(g => {
+    if (g.giornata >= 6) {
+      return {...g, cup: knockoutCupMap[`${g.giornata}|${g.casa}|${g.trasferta}`] || null};
+    }
+    return {...g, cup: null};
+  });
+
   const marcatori = golPartite.length > 0
     ? aggregaMarcatori(golPartite)
     : giocatori.filter(g => g.gol > 0).sort((a,b) => b.gol - a.gol);
 
-  const finale = parseFinale(fRaw);
   return {
     classifica,
     squadre,
