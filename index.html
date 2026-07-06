@@ -475,7 +475,7 @@ function parseFinale(rows) {
   rows.slice(1).forEach(r => {
     const fase = (r[0]||'').toLowerCase();
     const comp = (r[5]||'').toLowerCase();
-    const m = {s1:r[1]||'TBD',g1:r[2],s2:r[3]||'TBD',g2:r[4],data:r[6]||''};
+    const m = {s1:r[1]||'TBD',g1:r[2],s2:r[3]||'TBD',g2:r[4],data:r[6]||'',orario:(r[7]||'').trim()};
     const key = comp.includes('argento') ? 'argento' : comp.includes('bronzo') ? 'bronzo' : 'mondiale';
     if (fase.includes('campio')) {
       out[key].campione = isExcludedTeam(r[1]) ? '' : (r[1]||'');
@@ -503,7 +503,7 @@ function finaleToParte(finale) {
           gol_casa:  (m.g1!==''&&m.g1!=null&&m.g1!==undefined) ? m.g1 : undefined,
           gol_trasf: (m.g2!==''&&m.g2!=null&&m.g2!==undefined) ? m.g2 : undefined,
           trasferta: m.s2, cup: {mondiale:'GOLD',argento:'SILVER',bronzo:'BRONZE'}[cup],
-          note:'', mvp_nome:'', mvp_squadra:''
+          note: m.orario||'', mvp_nome:'', mvp_squadra:''
         });
       });
     });
@@ -516,7 +516,7 @@ async function loadFromSheet() {
     sheetFetch('Classifica!A:J'),
     sheetFetch('Risultati!A:J'),
     sheetFetch('Marcatori!A:D'),
-    sheetFetch('Fase Finale!A:G'),
+    sheetFetch('Fase Finale!A:H'),
   ]);
   const gRaw = await sheetFetch('Rose!A:D').catch(async () => {
     return await sheetFetch('Rosa!A:D').catch(() => []);
@@ -749,7 +749,8 @@ function renderPartite() {
     const grouped = groupBy(byGiornata[gg], m=>m.data);
     const dates = Object.keys(grouped).sort((a,b) => toISO(a).localeCompare(toISO(b)));
     const daysHtml = dates.map(d => {
-      const ms = grouped[d].map(m => {
+      const dayMatches = [...grouped[d]].sort((a,b) => (a.note||'').localeCompare(b.note||''));
+      const ms = dayMatches.map(m => {
         const played = m.gol_casa!==undefined && m.gol_casa!==null && m.gol_casa!=='';
         const scoreTxt = played ? `${m.gol_casa} - ${m.gol_trasf}` : 'vs';
         const scoreCls = played ? '' : 'tbd';
