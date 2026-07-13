@@ -503,12 +503,31 @@ function todayKey() {
 function dateKey(p) { return `${p.d}/${p.mo}/${p.y}`; }
 
 /* ── DATA LOAD ── */
+function parseFaseFinale(rows) {
+  return rows.slice(1).map(r => {
+    const fase = (r[0] || '').toLowerCase();
+    const gg = fase.includes('quart') ? 6 : fase.includes('semi') ? 7 : fase.includes('final') ? 8 : null;
+    if (!gg) return null;
+    const s1 = (r[1] || '').trim().toUpperCase(), s2 = (r[3] || '').trim().toUpperCase();
+    if (!s1 || s1 === 'TBD' || !s2 || s2 === 'TBD') return null;
+    return {
+      giornata: gg, data: r[6] || '', casa: s1,
+      gol_casa: (r[2] !== '' && r[2] != null && r[2] !== undefined) ? r[2] : undefined,
+      gol_trasf: (r[4] !== '' && r[4] != null && r[4] !== undefined) ? r[4] : undefined,
+      trasferta: s2
+    };
+  }).filter(Boolean);
+}
 async function loadData() {
   try {
-    const res  = await fetch(`/api/sheet?range=${encodeURIComponent('Risultati!A:J')}`);
-    const rows = (await res.json()).values || [];
-    allPartite = rows.slice(1)
-      .filter(r => r[2] && !isNaN(+r[0]))
+    const [resR, resF] = await Promise.all([
+      fetch(`/api/sheet?range=${encodeURIComponent('Risultati!A:J')}`),
+      fetch(`/api/sheet?range=${encodeURIComponent('Fase Finale!A:H')}`)
+    ]);
+    const rowsR = (await resR.json()).values || [];
+    const rowsF = (await resF.json()).values || [];
+    const gironi = rowsR.slice(1)
+      .filter(r => r[2] && !isNaN(+r[0]) && +r[0] <= 5)
       .map(r => ({
         giornata:  +r[0] || 1,
         data:       r[1] || '',
@@ -517,6 +536,7 @@ async function loadData() {
         gol_trasf:  r[5],
         trasferta: (r[6] || '').trim().toUpperCase()
       }));
+    allPartite = [...gironi, ...parseFaseFinale(rowsF)];
     document.getElementById('statusBar').textContent =
       `${allPartite.length} partite caricate · seleziona giorno`;
     buildSelector();
